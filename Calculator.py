@@ -105,7 +105,7 @@ class FactorCalculator:
         self.symbolCol = config["symbolCol"]
         self.dateCol = config["dateCol"]
         self.timeCol = config["timeCol"]
-        self.minuteCol = config["minute"]
+        self.minuteCol = config["minuteCol"]
 
 
     def set_factorList(self, factor_list: List):
@@ -246,8 +246,9 @@ if __name__ == "__main__":
     with open(r".\config\class.json5","r",encoding='utf-8') as f:
         class_cfg = json5.load(f)
     session=ddb.session()
-    session.connect("172.16.0.184",8001,"maxim","dyJmoc-tiznem-1figgu")
-    pool=ddb.DBConnectionPool("172.16.0.184",8001,10,"maxim","dyJmoc-tiznem-1figgu")
+    session.connect("localhost",8848,"admin","123456")
+    #session.connect("172.16.0.184",8001,"maxim","dyJmoc-tiznem-1figgu")
+    #pool=ddb.DBConnectionPool("172.16.0.184",8001,10,"maxim","dyJmoc-tiznem-1figgu")
     F = FactorCalculator(session=session, config=config,
                          factor_cfg=factor_cfg,
                          indicator_cfg=indicator_cfg,
