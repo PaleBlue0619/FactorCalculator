@@ -22,12 +22,12 @@
      "timeCol": "tradeTime",
      "symbolCol": "code",
      "indicator": {
-       "open": "open",
-       "high": "high",
-       "low": "low",
-       "close": "close",
-       "volume": "volume",
-       "amount": "amount"
+       "stockMin1KBar_open": "open",
+       "stockMin1KBar_high": "high",
+       "stockMin1KBar_low": "low",
+       "stockMin1KBar_close": "close",
+       "stockMin1KBar_volume": "volume",
+       "stockMin1KBar_amount": "amount"
      }
    }
   }
