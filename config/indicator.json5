@@ -1,4 +1,5 @@
-{
+{ // 注:数据库名称中不允许有$这个特殊符号
+  // 时间/标的列不能以NA作为列名
   "stockDayKBar":{ // 数据表名称(全局唯一)
       "dataPath": ["dfs://DayKDB","o_tushare_a_stock_daily"],  // 表地址(全局唯一)
       "dataFreq": "day", // 日频

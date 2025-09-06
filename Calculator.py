@@ -1,11 +1,11 @@
 import os
+import pandas as pd
+import networkx as nx
 import dolphindb as ddb
 from typing import Dict, List
 import json, json5
 
 # 这里是主函数中设置的变量名称
-import pandas as pd
-
 config = {
     "dayFactorDB":"dfs://Dayfactor",
     "dayFactorTB":"pt",
@@ -33,6 +33,41 @@ def trans_time(start_date: str, end_date:str):
     end_date = pd.Timestamp(end_date).strftime("%Y.%m.%d")
     return start_date, end_date
 
+
+def get_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[str]:
+    """
+    安全版本：处理循环依赖
+    """
+    G = nx.DiGraph()
+
+    # 构建依赖图
+    for factor, cfg in factor_cfg.items():
+        deps = cfg['dependency']['factor'] or []
+        deps = [deps] if isinstance(deps, str) else deps
+        for dep in deps:
+            G.add_edge(dep, factor)
+
+    # 收集所有相关节点
+    all_nodes = set(factor_list)
+    for factor in factor_list:
+        all_nodes.update(nx.ancestors(G, factor))
+
+    # 检查循环依赖
+    try:
+        return list(nx.topological_sort(G.subgraph(all_nodes)))
+    except nx.NetworkXUnfeasible:
+        # 有循环依赖时，返回按字母排序
+        return sorted(all_nodes)
+
+def get_funcMapFromImport(*modules):
+    """从指定模块收集函数"""
+    function_map = {}
+    for module in modules:
+        for name in dir(module):
+            obj = getattr(module, name)
+            if callable(obj):  # and not name.startswith('_'):
+                function_map[name] = obj
+    return function_map
 
 def complete_factor_cfg(factor_cfg: Dict) -> Dict:
     """
@@ -94,8 +129,42 @@ def complete_factor_cfg(factor_cfg: Dict) -> Dict:
 
     return factor_map
 
+def sort_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[str]:
+    """
+    简单的依赖关系排序
+    """
+    G = nx.DiGraph()
+    G.add_nodes_from(factor_list)
+
+    # 构建依赖图
+    for factor in factor_list:
+        if factor in factor_cfg:
+            deps = factor_cfg[factor]['dependency']['factor']
+            if deps is None:
+                continue
+            if isinstance(deps, str):
+                deps = [deps]
+            for dep in deps:
+                if dep in factor_list:
+                    G.add_edge(dep, factor)
+
+    try:
+        return list(nx.topological_sort(G))
+    except nx.NetworkXUnfeasible:
+        # 循环依赖时返回原始列表
+        print("警告: 存在循环依赖，返回原始顺序")
+        return factor_list
+
+
 class FactorCalculator:
-    def __init__(self, session:ddb.session, config: Dict, factor_cfg: Dict, indicator_cfg: Dict, class_cfg: Dict = None, factor_list: List = None):
+    def __init__(self, session: ddb.session,
+                 config: Dict,
+                 factor_cfg: Dict,
+                 indicator_cfg: Dict,
+                 func_map: Dict,    # 函数str:对应函数Obj
+                 class_cfg: Dict = None,
+                 factor_list: List = None):
+
         """初始化"""
         self.session = session
         self.dolphindb_cmd = "" # 最终合成的DolphinDB命令
@@ -120,7 +189,8 @@ class FactorCalculator:
         self.config = config
         self.factor_cfg = factor_cfg
         self.indicator_cfg = indicator_cfg
-        self.class_cfg = class_cfg
+        self.func_map = func_map
+        self.class_cfg = class_cfg if class_cfg else {}
         self.dayDB = config["dayFactorDB"]   # 因子库名(日频)
         self.dayTB = config["dayFactorTB"]  # 因子表名(日频)
         self.minDB = config["minFactorDB"]
@@ -135,9 +205,10 @@ class FactorCalculator:
         self.timeCol = config["timeCol"]
         self.minuteCol = config["minuteCol"]
 
-
     def set_factorList(self, factor_list: List):
-        self.factor_list = factor_list
+        self.factor_list = get_factor_byDependency(factor_cfg=self.factor_cfg,
+                                                   factor_list=factor_list)
+        self.factor_cfg = {factor: self.factor_cfg[factor] for factor in self.factor_list}
 
     def init_database(self, dropDayDB: bool = False, dropDayTB: bool = False, dropMinDB: bool = False, dropMinTB: bool = False):
         """创建DataBase"""
@@ -194,6 +265,13 @@ class FactorCalculator:
 
         # 检查factor_cfg中的factor信息是否符合预期
         for factorName,Dict in self.factor_cfg.items():
+            # 补全indicator信息
+            for i in range(len(Dict["dataPath"])):
+                (dataPath, indicatorList) = Dict["dataPath"][i], Dict["indicator"][i]
+                for j in range(len(indicatorList)): # 对当前数据库下的每一个indicator进行判断
+                    if str(dataPath) not in indicatorList[j]:
+                        self.factor_cfg[factorName]["indicator"][i][j] = str(dataPath)+"_"+self.factor_cfg[factorName]["indicator"][i][j]
+
             # 添加至对应频率的因子列表
             if str(Dict["params"]["freq"]).lower() in ["minute","m","min"]:
                 self.factor_min_list.append(factorName)
@@ -201,7 +279,7 @@ class FactorCalculator:
                 self.factor_day_list.append(factorName)
             # 添加至对应的class名-因子名Dict
             className = Dict["class"]
-            if className not in self.class_dict.keys():
+            if className not in self.classFactorName_dict.keys():
                 self.classFactorName_dict[className] = []
             self.classFactorName_dict[className].append(factorName)
 
@@ -234,7 +312,7 @@ class FactorCalculator:
         {self.sourceObj}=0;
         {self.middleObj}=dict(STRING,ANY);  // 中间无关变量
         {self.dataObj}=0;
-        {self.factorObj}=dict(STRING,ANY); // 因子变量,算完了丢进去
+        {self.factorDict}=dict(STRING,ANY); // 因子变量,算完了丢进去
         """+self.data_insert()  # 定义插入函数
         )
     def data_insert(self):
@@ -259,7 +337,46 @@ class FactorCalculator:
         InsertMinFactor = InsertData{{"insertMinDB", "insertMinTB", , }};
         """.replace("insertDayDB",self.dayDB).replace("insertDayTB",self.dayTB).replace("insertMinDB",self.minDB).replace("insertMinTB",self.minTB)
 
-    def left_join_first(self, lpath: str, rpath: str, lindicator_dict: dict, rindicator_dict:dict, start_date: str, end_date: str):
+    def no_leftJoin(self, dataPath: str, indicator_dict: dict, start_date:str, end_date: str):
+        start_date, end_date = trans_time(start_date, end_date)
+        cfg = self.indicator_cfg[dataPath]
+        for colName in ["symbolCol","dateCol","timeCol"]:
+            if cfg[colName] in ["", None]:
+                cfg[colName] = "NA"
+        return f"""
+         // 配置项
+        start_date = {start_date};
+        end_date = {end_date};
+        dbName = "{cfg["dataPath"][0]}";
+        tbName = "{cfg["dataPath"][1]}";
+        symbolCol = "{cfg["symbolCol"]}";
+        dateCol = "{cfg["dateCol"]}";
+        timeCol = "{cfg["timeCol"]}";
+        idxCols = array(STRING,0);
+        matchingCols = array(STRING,0);
+        indicator_dict = {indicator_dict};
+        if (dateCol!="NA"){{
+            idxCols.append!(ldateCol);
+            matchingCols.append!("TradeDate");
+        }};
+        if (timeCol!="NA"){{
+            idxCols.append!(timeCol);
+            matchingCols.append!("TradeTime");
+        }};
+        if (symbolCol!="NA"){{
+            idxCols.append!(symbolCol);
+            matchingCols.append!("symbol");
+        }};
+        names = matchingCols.copy().append!(string(indicator_dict.keys()));
+        selects = idxCols.copy().append!(string(indicator_dict.values()));
+        if (dateCol!="NA"){{
+            {self.sourceObj} = <select _$$selects as _$$names from loadTable(dbName, tbName) where _$dateCol between start_date and end_date>.eval()              
+        }}else{{
+            {self.sourceObj} = <select _$$selects as _$$names from loadTable(dbName, tbName)>.eval()          
+        }}
+        """
+
+    def first_leftJoin(self, lpath: str, rpath: str, lindicator_dict: dict, rindicator_dict:dict, start_date: str, end_date: str):
         """
         生成left join语句(第一次生成SourceObj的语句, 后续由left_join函数使得SourceObj增量去left join右表)
         """
@@ -324,10 +441,10 @@ class FactorCalculator:
         }}else{{
             rightTable = <select _$$rselects as _$$rnames from loadTable(rdbName, rtbName)>.eval()          
         }};        
-        {self.sourceObj} = lsj(leftTable, rightTable, matchingCols)     
+        {self.sourceObj} = lsj(leftTable, rightTable, matchingCols);     
         """
 
-    def left_join_after(self, rpath: str, rindicator_cfg: dict, start_date: str, end_date: str):
+    def after_leftJoin(self, rpath: str, rindicator_dict: dict, start_date: str, end_date: str):
         start_date, end_date = trans_time(start_date, end_date)
         # 左表的名称为$sourceObj获取右表的数据库名称
         rcfg = self.indicator_cfg[rpath]
@@ -344,7 +461,7 @@ class FactorCalculator:
         rtimeCol = "{rcfg["timeCol"]};
         rightIdxCols = array(STRING,0);
         matchingCols = array(STRING,0)
-        rindicator_dict = {rindicator_cfg}
+        rindicator_dict = {rindicator_dict}
         // 这里的leftObj都是第一次Left semi join中的左表
         if (ldateCol!="NA" and rdateCol!="NA"){{  
             rightIdxCols.append!(rdateCol);
@@ -366,7 +483,7 @@ class FactorCalculator:
         }}else{{
             rightTable = <select _$$rselects as _$$rnames from loadTable(rdbName, rtbName)>.eval()          
         }}
-        {self.sourceObj} = lsj({self.sourceObj}, rightTable, matchingCols)
+        {self.sourceObj} = lsj({self.sourceObj}, rightTable, matchingCols);
         """
 
     def last_add(self, symbolCol:str, dateCol:str, nDays: int = 1, marketType: str = None):
@@ -382,6 +499,31 @@ class FactorCalculator:
         append!(pt,last_pt);
         undef(`last_pt);
         """
+
+    def get_featuresGivenFactor(self, factor_list: List) -> Dict:
+        """
+        给定因子list, 自动返回一个Dict<dataPath: feature_Dict>
+        注: init_check后补全相关配置+规范相关特征名称后再运行
+        """
+        resDict = {}
+        for factor in factor_list:
+            dataPathList = self.factor_cfg[factor]["dataPath"]
+            indicatorList = self.factor_cfg[factor]["indicator"]
+            for dataPath, indicators in zip(dataPathList, indicatorList):
+                if dataPath not in resDict:
+                    resDict[dataPath] = {ind: self.indicator_cfg[dataPath]["indicator"][ind] for ind in indicators}
+                else:
+                    resDict[dataPath].update({ind: self.indicator_cfg[dataPath]["indicator"][ind] for ind in indicators})
+        return resDict
+
+    def sort_factorsGivenDependency(self, factor_list: List) -> List:
+        """
+        [核心函数]
+        1. 根据配置项中因子的依赖关系对因子执行顺序进行编排
+        2. [Optional说实在]同一依赖关系分支中, 再按照因子类进行排序
+        """
+        return sort_factor_byDependency(factor_cfg=self.factor_cfg,
+                                      factor_list=factor_list)
 
     def run(self, start_date: str, end_date: str,
             dropDayDB: bool = False,
@@ -399,26 +541,82 @@ class FactorCalculator:
         # MD_list (left-join)
         self.dataPath_MD_dict = {} # 存储所有MD格式的dataPath以及对应的因子list
         for factorName in self.factor_MD_list:  # 遍历所有MD类型的因子
-            dataPath = self.factor_cfg[factorName]["dataPath"]
+            dataPath = "$".join(self.factor_cfg[factorName]["dataPath"])
             if dataPath not in self.dataPath_MD_dict.keys():
-                dataPath_MD_dict[dataPath] = []
-            dataPath_MD_dict[dataPath].append(factorName)
-        for dataPath,factorList in dataPath_MD.items():    # 遍历所有MD类型的数据库以及对应的因子List
-            # 准备这个dataPath下需要哪些因子
+                self.dataPath_MD_dict[dataPath] = []
+            self.dataPath_MD_dict[dataPath].append(factorName)
+        for dataPath,factorList in self.dataPath_MD_dict.items():    # 遍历所有MD类型的数据库以及对应的因子List
+            # 准备这个dataPath下需要哪些特征 -> dict(dbName, feature_dict)
+            dataPath = dataPath.split("$")
+            featureDict = self.get_featuresGivenFactor(factorList)
+            # 获取这个dataPath下有那些class的因子
+            classList = list(set([self.factor_cfg[factor]["class"] for factor in factorList]))
 
-            # 先添加left join数据
-            self.dolphindb_cmd+=f"""
-            {self.sourceObj} = lj(<>)
-            """
+            # 先添加left join数据 -> 对于该数据库对+对应的因子列表，初始化sourceObj
+            if len(dataPath) == 1:  # 说明不需要执行semi-leftJoin
+                self.dolphindb_cmd += self.no_leftJoin(dataPath=dataPath[0],
+                                                     indicator_dict=featureDict[dataPath[0]],
+                                                     start_date=start_date,
+                                                     end_date=end_date)
+            elif len(dataPath) >= 2: # 说明需要执行semi-leftJoin
+                self.dolphindb_cmd += self.first_leftJoin(lpath=dataPath[0], rpath=dataPath[1],
+                                                          lindicator_dict=featureDict[dataPath[0]],
+                                                          rindicator_dict=featureDict[dataPath[1]],
+                                                          start_date=start_date,
+                                                          end_date=end_date)
+                if len(dataPath) >= 3: # 说明从左到右依次执行多次semi-leftJoin
+                    for i in range(2,len(dataPath)):
+                        self.dolphindb_cmd += self.after_leftJoin(rpath=dataPath[i],
+                                                                  rindicator_cfg=featureDict[dataPath[i]],
+                                                                  start_date=start_date,
+                                                                  end_date=end_date)
+            # 将factorList按照依赖关系进行排序, 这里会把一个class内部的因子排在一起, dependency正确排序
+            factorList = self.sort_factorsGivenDependency(factorList)
 
-            # 遍历
+            # 先批量执行classFunc
+            for factorName in factorList:
+                # 获取这个因子的class, 判断有没有设置对应的classFunc
+                class_ = self.factor_cfg[factorName]["class"]
+                if class_ not in classList: # 被执行/判断过了
+                    continue
+                classList.remove(class_)    # 进入执行/判断分支
+                if class_ not in self.class_cfg.keys():
+                    continue
+                funcList = self.class_cfg[class_]
+                if funcList in [None, []]:
+                    continue
+                # 说明是有效的classFunc
+                for funcName in funcList:
+                    res = self.func_map[funcName](self)
+                    if isinstance(res, dict):
+                        self.dolphindb_cmd+=res["cmd"]
+                    else:
+                        self.dolphindb_cmd+=res
 
-
+            # 再分别执行因子计算函数factorFunc
+            for factorName in factorList:
+                # 看一下有没有midFunc, 如果有的话需要获取midFunc
+                midFuncList = self.factor_cfg[factorName]["dependency"]["midFunc"]
+                if midFuncList:
+                    for midFunc in midFuncList:
+                        res = self.func_map[midFunc](self)
+                        if isinstance(res, dict):
+                            res = res["cmd"]
+                        self.dolphindb_cmd+= res
+                # 获取这个因子的计算函数
+                calFuncName = self.factor_cfg[factorName]["calFunc"]
+                paramsDict = self.factor_cfg[factorName]  # 获取这个factor的一且信息
+                calFunc = self.func_map[calFuncName]
+                nParams = calFunc.__code__.co_argcount
+                if nParams == 3:
+                    self.dolphindb_cmd+= calFunc(self,factorName,paramsDict)
+                else:
+                    self.dolphindb_cmd += calFunc(self,factorName)
 
 if __name__ == "__main__":
-    from func.factorfunc0903 import *
-    from func.classfunc0903 import *
-    from func.midfunc0903 import *
+    import func.factorfunc0903 as calFunc
+    import func.classfunc0903 as classFunc
+    import func.midfunc0903 as midFunc
     with open(r".\config\factor.json5", "r",encoding='utf-8') as f:
         factor_cfg = json5.load(f)
     with open(r".\config\indicator.json5","r",encoding='utf-8') as f:
@@ -426,15 +624,14 @@ if __name__ == "__main__":
     with open(r".\config\class.json5","r",encoding='utf-8') as f:
         class_cfg = json5.load(f)
     session=ddb.session()
-    session.connect("localhost",8848,"admin","123456")
-    #session.connect("172.16.0.184",8001,"maxim","dyJmoc-tiznem-1figgu")
+    # session.connect("localhost",8848,"admin","123456")
+    session.connect("172.16.0.184",8001,"maxim","dyJmoc-tiznem-1figgu")
     #pool=ddb.DBConnectionPool("172.16.0.184",8001,10,"maxim","dyJmoc-tiznem-1figgu")
     F = FactorCalculator(session=session, config=config,
                          factor_cfg=factor_cfg,
                          indicator_cfg=indicator_cfg,
+                         func_map=get_funcMapFromImport(midFunc, classFunc, calFunc),
                          class_cfg=class_cfg)
-    F.run()
-    print(F.factor_MD_list)
-    # print(F.factor_cfg)
-    # print(F.factor_DD_list)
-    # print(globals()["shioFunc"](F)["cmd"])
+    F.set_factorList(factor_list=["shioStrong_avg20"])
+    F.run(start_date="20241001",end_date="20250101")
+    session.run(F.dolphindb_cmd)

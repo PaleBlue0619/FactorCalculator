@@ -7,12 +7,11 @@ from Calculator import FactorCalculator
 
 def shioDataPrepare(self: FactorCalculator) -> Dict:
     """潮汐因子数据准备函数"""
-    DayKBar = self.indicator_cfg["stock"]["DayKBar"]["indicator"]
-    volume = DayKBar["stockDayKBar_amount"]
-    amount = DayKBar["stockDayKBar_volume"]
+    volume = "stockMin1KBar_volume"
+    amount = "stockMin1KBar_amount"
 
     return {"cmd": f"""
-    update {self.sourceObj} set vwap = nullFill!({volume}/{amount},0);
+    update {self.sourceObj} set vwap = nullFill!({amount}/{volume},0);
     update {self.sourceObj} set mVol = msum({volume},9) context by {self.symbolCol}, {self.dateCol}
     update {self.sourceObj} set mVol = move(mVol,4) context by {self.symbolCol}, {self.dateCol}
     """, "columns": ["vwap","mVol"], "vars":None}
