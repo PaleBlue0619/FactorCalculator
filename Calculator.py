@@ -9,10 +9,11 @@ config = {
     "dayFactorTB":"pt",
     "minFactorDB":"dfs://Minfactor",
     "minFactorTB":"pt",
+    "sourceDict": "sourceDict", # 所有原始指标left join后存入的字典
     "sourceObj": "df",  # 原始所需要指标的left join得到内存表的名称
-    "middleObj": "midDict",  # 中间变量名称,字典格式,取的时候直接从字典取
+    "middleObj": "middle",  # 中间变量名称,字典格式,取的时候直接从字典取
     "dataObj": "data",  # 最终返回的因子变量名称
-    "factorObj": "factorDict",  # 分钟频/日频共用因子Dict(不可被undef!)
+    "factorDict": "factorDict",  # 分钟频/日频共用因子Dict(不可被undef!)
     "symbolCol": "symbol",
     "dateCol": "TradeDate",
     "timeCol": "TradeTime",
@@ -85,10 +86,19 @@ class FactorCalculator:
         self.session = session
         self.dolphindb_cmd = "" # 最终合成的DolphinDB命令
         self.factor_list = factor_list       # 实际需要添加的因子列表
+
+        # 划分维度1:
         self.factor_day_list = []   # 日频因子列表
         self.factor_min_list = []   # 分钟频因子列表
+
+        # 划分维度2: 按照数据库维度进行划分->统一维度/不同维度
+        self.dataPath_D_list = []   # 日频数据表
+        self.dataPath_M_list = []   # 分钟频数据表
+        self.factor_DD_list = []    # 需要纯日频数据/日频+日频数据
+        self.factor_MM_list = []    # 需要纯分钟频数据/分钟频+分钟频数据
+        self.factor_MD_list = []    # 分钟频left join日频数据
         self.class_dict = {}        # 所有因子对应的class以及对应的函数列表
-        self.factorFunc_dict = {}
+        self.factorFuncName_dict = {}
 
         self.config = config
         self.factor_cfg = factor_cfg
@@ -98,10 +108,11 @@ class FactorCalculator:
         self.dayTB = config["dayFactorTB"]  # 因子表名(日频)
         self.minDB = config["minFactorDB"]
         self.minTB = config["minFactorTB"]
+        self.sourceDict = config["sourceDict"]
         self.sourceObj = config["sourceObj"]
         self.middleObj = config["middleObj"]
         self.dataObj = config["dataObj"]
-        self.factorObj = config["factorObj"]
+        self.factorDict = config["factorDict"]
         self.symbolCol = config["symbolCol"]
         self.dateCol = config["dateCol"]
         self.timeCol = config["timeCol"]
@@ -129,17 +140,17 @@ class FactorCalculator:
             self.session.run(f"""
             db1 = database(,VALUE,2010.01M..2030.01M)
             db2 = database(,LIST,[`Maxim`DolphinDB])
-            db = database({self.dayDB},partitionType=COMPO, partitionScheme=[db1, db2], engine="TSDB")
+            db = database("{self.dayDB}",partitionType=COMPO, partitionScheme=[db1, db2], engine="TSDB")
             schemaTb = table(1:0, ["symbol","date","factor","value"],[SYMBOL,DATE,SYMBOL,DOUBLE])
-            db.createPartitionTable(schemaTb, {self.dayTB}, partitionColumns=`date`factor, sortColumns=`factor`symbol`date, keepDuplicates=LAST)
+            db.createPartitionedTable(schemaTb, "{self.dayTB}", partitionColumns=`date`factor, sortColumns=`factor`symbol`date, keepDuplicates=LAST)
             """)
         if not self.session.existsTable(dbUrl=self.minDB,tableName=self.dayTB):
             self.session.run(f"""
             db1 = database(,VALUE,2010.01M..2030.01M)
             db2 = database(,LIST,[`Maxim`DolphinDB])
-            db = database({self.minDB},partitionType=COMPO, partitionScheme=[db1, db2], engine="TSDB")
+            db = database("{self.minDB}",partitionType=COMPO, partitionScheme=[db1, db2], engine="TSDB")
             schemaTb = table(1:0, ["symbol","date","time","factor","value"], [SYMBOL,DATE,TIME,SYMBOL,DOUBLE])
-            db.createPartitionTable(schemaTb, {self.minTB}, partitionColumns=`date`factor, sortColumns=`factor`symbol`time`date, keepDuplicates=LAST)
+            db.createPartitionedTable(schemaTb, "{self.minTB}", partitionColumns=`date`factor, sortColumns=`factor`symbol`time`date, keepDuplicates=LAST)
             """)
 
     def init_check(self):
@@ -150,6 +161,13 @@ class FactorCalculator:
         # 补全indicator_cfg中的indicator信息
         for assetType,Dict in self.indicator_cfg.items():
             for dbName, indicator_Dict in Dict.items():
+                # 判断数据库表对应的时间频率
+                if str(indicator_Dict["dataFreq"]).lower() in ["day","d","daily"]:
+                    self.dataPath_D_list.append(dbName)
+                else:
+                    self.dataPath_M_list.append(dbName)
+
+                # 补全字段名称
                 indicator_cfg = indicator_Dict["indicator"]
                 for indicator in list(indicator_cfg.keys()):
                     if str(assetType)+str(dbName) not in indicator:
@@ -173,18 +191,25 @@ class FactorCalculator:
 
             # 添加至对应的函数名-因子名Dict
             funcName = Dict["calFunc"]
-            self.factorFunc_dict[funcName] = factorName  # 函数名:因子名称, 只需要这个关系就行, 后续函数里面拿出来之后直接去原始factor_cfg中查剩下的属性即可
-
-            # 记录这个因子所在的dataPath信息
+            self.factorFuncName_dict[funcName] = factorName  # 函数名:因子名称, 只需要这个关系就行, 后续函数里面拿出来之后直接去原始factor_cfg中查剩下的属性即可
 
         # 补全factor_cfg中的配置项信息
         self.factor_cfg = complete_factor_cfg(self.factor_cfg)
-
-    def init_plan(self):
-        """
-        生成执行计划
-        """
-        return """"""
+        for factorName,Dict in self.factor_cfg.items():
+            # 根据所需数据库表时间频率判断因子∈DD型/MM型/DM型
+            dataPath = Dict["dataPath"] # list
+            relyDaily, relyMinute = False, False
+            for path in dataPath:
+                if path in self.dataPath_D_list:
+                    relyDaily = True
+                if path in self.dataPath_M_list:
+                    relyMinute = True
+            if relyDaily and not relyMinute:
+                self.factor_DD_list.append(factorName)
+            elif relyMinute and not relyDaily:
+                self.factor_MM_list.append(factorName)
+            else:
+                self.factor_MD_list.append(factorName)
 
     def init_def(self):
         self.session.run(f"""
@@ -216,6 +241,22 @@ class FactorCalculator:
         InsertMinFactor = InsertData{{"insertMinDB", "insertMinTB", , }};
         """.replace("insertDayDB",self.dayDB).replace("insertDayTB",self.dayTB).replace("insertMinDB",self.minDB).replace("insertMinTB",self.minTB)
 
+    def left_join(self, lpath: str, rpath: str, lindicator_dict: Dict, rindicator_dict: Dict):
+        """
+        生成left join语句
+        """
+        # 获取左右表的数据库表名称
+        ldbName = self.indicator_cfg[lpath][0]
+        ltbName = self.indicator_cfg[lpath][1]
+        rdbName = self.indicator_cfg[rpath][0]
+        rtbName = self.indicator_cfg[rpath][1]
+
+        return f"""
+        // 利用DolphinDB SQL宏编程进行实现
+        ldb = sql(select=sqlCol())
+        rdb = 
+        
+        """
 
     def last_add(self, symbolCol:str, dateCol:str, nDays:int=1, marketType:str=None):
         """
@@ -233,12 +274,21 @@ class FactorCalculator:
 
     def run(self, dropDayDB: bool = False, dropDayTB: bool = False, dropMinDB: bool = False, dropMinTB: bool = False):
         """主函数"""
+        # Step1. 初始化
         self.init_def() # 初始化相关变量+数据插入函数
         self.init_database(dropDayDB, dropDayTB, dropMinDB, dropMinTB)  # 初始化数据库
         self.init_check()
 
+        # Step2. DD_list/MM_list/MD_list
+        # DD_list (left-join)
+        self.dolphindb_cmd+=f"""
+        """
+
 
 if __name__ == "__main__":
+    from func.factorfunc0903 import *
+    from func.classfunc0903 import *
+    from func.midfunc0903 import *
     with open(r".\config\factor.json5", "r",encoding='utf-8') as f:
         factor_cfg = json5.load(f)
     with open(r".\config\indicator.json5","r",encoding='utf-8') as f:
@@ -253,4 +303,8 @@ if __name__ == "__main__":
                          factor_cfg=factor_cfg,
                          indicator_cfg=indicator_cfg,
                          class_cfg=class_cfg)
-    print(F.factor_cfg)
+    F.run()
+    print(F.factor_MD_list)
+    # print(F.factor_cfg)
+    # print(F.factor_DD_list)
+    # print(globals()["shioFunc"](F)["cmd"])

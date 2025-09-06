@@ -2,6 +2,8 @@
 classFunc: 也就是这个factorClass
 
 """
+from typing import Dict
+from Calculator import FactorCalculator
 
 def shioDataPrepare(self: FactorCalculator) -> Dict:
     """潮汐因子数据准备函数"""
