@@ -12,6 +12,7 @@ def get_shio(self: FactorCalculator, factorName: str, feature: Dict, **args):
     // dateCol,symbolCol,factorName
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
+    print("因子{factorName}计算完毕");
     """
 
 def get_shio_avg20(self: FactorCalculator, factorName: str, feature: Dict, **args):
@@ -21,6 +22,7 @@ def get_shio_avg20(self: FactorCalculator, factorName: str, feature: Dict, **arg
     update {self.middleObj} set {factorName} = mavg({dependFactor},20) context by {self.symbolCol},{self.dateCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
+    print("因子{factorName}计算完毕");
     """
 
 def get_shio_std20(self: FactorCalculator, factorName: str, feature: Dict, **args):
@@ -30,6 +32,7 @@ def get_shio_std20(self: FactorCalculator, factorName: str, feature: Dict, **arg
     update {self.middleObj} set {factorName} = mstd({dependFactor},20) context by {self.symbolCol},{self.dateCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
+    print("因子{factorName}计算完毕");
     """
 
 def get_shioStrong(self: FactorCalculator, factorName: str, **args):
@@ -40,6 +43,7 @@ def get_shioStrong(self: FactorCalculator, factorName: str, **args):
     // dateCol,symbolCol,factorName
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
+    print("因子{factorName}计算完毕");
     """
 
 def get_shioStrong_avg20(self: FactorCalculator, factorName: str, feature: Dict, **args):
@@ -49,6 +53,7 @@ def get_shioStrong_avg20(self: FactorCalculator, factorName: str, feature: Dict,
     update {self.middleObj} set {factorName} = mavg({dependFactor},20) context by {self.symbolCol},{self.dateCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
+    print("因子{factorName}计算完毕");
     """
 
 def get_shioStrong_std20(self: FactorCalculator, factorName: str, feature: Dict, **args):
@@ -58,4 +63,5 @@ def get_shioStrong_std20(self: FactorCalculator, factorName: str, feature: Dict,
     update {self.middleObj} set {factorName} = mstd({dependFactor},20) context by {self.symbolCol},{self.dateCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
+    print("因子{factorName}计算完毕");
     """

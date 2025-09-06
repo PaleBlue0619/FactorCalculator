@@ -163,12 +163,13 @@ class FactorCalculator:
                  indicator_cfg: Dict,
                  func_map: Dict,    # 函数str:对应函数Obj
                  class_cfg: Dict = None,
-                 factor_list: List = None):
+                 ):
 
         """初始化"""
         self.session = session
         self.dolphindb_cmd = "" # 最终合成的DolphinDB命令
-        self.factor_list = factor_list       # 实际需要添加的因子列表
+        self.factor_need = []       # 实际需要添加的因子列表
+        self.factor_list = []       # 所有需要的因子列表
 
         # 划分维度1:
         self.factor_day_list = []   # 日频因子列表
@@ -206,6 +207,7 @@ class FactorCalculator:
         self.minuteCol = config["minuteCol"]
 
     def set_factorList(self, factor_list: List):
+        self.factor_need = factor_list  # 真正需要传上去的因子列表
         self.factor_list = get_factor_byDependency(factor_cfg=self.factor_cfg,
                                                    factor_list=factor_list)
         self.factor_cfg = {factor: self.factor_cfg[factor] for factor in self.factor_list}
@@ -500,6 +502,26 @@ class FactorCalculator:
         undef(`last_pt);
         """
 
+    def update_data(self):
+        """
+        最后上传所有所需数据至指定数据库
+        """
+        day_factor_need= [i for i in self.factor_day_list if i in self.factor_need]
+        min_factor_need= [i for i in self.factor_min_list if i in self.factor_need]
+        return f"""
+            day_factor_need = {day_factor_need};  // 所有需要添加至日频因子数据库的因子列表
+            min_factor_need = {min_factor_need};  // 所有需要添加至分钟频因子数据库的因子列表
+            for (factor in day_factor_need){{
+                InsertDayFactor({self.factorDict}[factor],1000000); 
+                print("日频因子"+factor+"Insert完毕");
+            }};
+            for (factor in min_factor_need){{
+                InsertMinFactor({self.factorDict}[factor],1000000);
+                print("分钟频因子"+factor+"Insert完毕");
+            }}
+        """
+
+
     def get_featuresGivenFactor(self, factor_list: List) -> Dict:
         """
         给定因子list, 自动返回一个Dict<dataPath: feature_Dict>
@@ -524,6 +546,7 @@ class FactorCalculator:
         """
         return sort_factor_byDependency(factor_cfg=self.factor_cfg,
                                       factor_list=factor_list)
+
 
     def run(self, start_date: str, end_date: str,
             dropDayDB: bool = False,
@@ -612,6 +635,9 @@ class FactorCalculator:
                     self.dolphindb_cmd+= calFunc(self,factorName,paramsDict)
                 else:
                     self.dolphindb_cmd += calFunc(self,factorName)
+        # 运行
+        self.dolphindb_cmd+=self.update_data() # 上传至数据库的SQL语句
+        self.session.run(self.dolphindb_cmd)    # 运行
 
 if __name__ == "__main__":
     import func.factorfunc0903 as calFunc
@@ -632,6 +658,5 @@ if __name__ == "__main__":
                          indicator_cfg=indicator_cfg,
                          func_map=get_funcMapFromImport(midFunc, classFunc, calFunc),
                          class_cfg=class_cfg)
-    F.set_factorList(factor_list=["shioStrong_avg20"])
-    F.run(start_date="20241001",end_date="20250101")
-    session.run(F.dolphindb_cmd)
+    F.set_factorList(factor_list=list(factor_cfg.keys()))
+    F.run(start_date="20200101",end_date="20250430")
