@@ -15,4 +15,4 @@ def shioDataPrepare(self: FactorCalculator) -> Dict:
     update {self.sourceObj} set vwap = nullFill!({volume}/{amount},0);
     update {self.sourceObj} set mVol = msum({volume},9) context by {self.symbolCol}, {self.dateCol}
     update {self.sourceObj} set mVol = move(mVol,4) context by {self.symbolCol}, {self.dateCol}
-    """, "columns": ["vwap","mVol"], "var":None}
+    """, "columns": ["vwap","mVol"], "vars":None}

@@ -4,6 +4,8 @@ from typing import Dict, List
 import json, json5
 
 # 这里是主函数中设置的变量名称
+import pandas as pd
+
 config = {
     "dayFactorDB":"dfs://Dayfactor",
     "dayFactorTB":"pt",
@@ -19,6 +21,18 @@ config = {
     "timeCol": "TradeTime",
     "minuteCol": "minute",
 }
+
+def trans_time(start_date: str, end_date:str):
+    """转换日期格式为DolphinDB能够识别的格式"""
+    # 限制因子计算时间
+    if not start_date:
+        start_date = "2020.01.01"
+    if not end_date:
+        end_date = pd.Timestamp(now).strftime("%Y.%m.%d")
+    start_date = pd.Timestamp(start_date).strftime("%Y.%m.%d")
+    end_date = pd.Timestamp(end_date).strftime("%Y.%m.%d")
+    return start_date, end_date
+
 
 def complete_factor_cfg(factor_cfg: Dict) -> Dict:
     """
@@ -97,7 +111,10 @@ class FactorCalculator:
         self.factor_DD_list = []    # 需要纯日频数据/日频+日频数据
         self.factor_MM_list = []    # 需要纯分钟频数据/分钟频+分钟频数据
         self.factor_MD_list = []    # 分钟频left join日频数据
-        self.class_dict = {}        # 所有因子对应的class以及对应的函数列表
+        self.dataPath_DD_dict = {}
+        self.dataPath_MM_dict = {}
+        self.dataPath_MD_dict = {}
+        self.classFactorName_dict = {}  # class: FactorSet
         self.factorFuncName_dict = {}
 
         self.config = config
@@ -159,22 +176,21 @@ class FactorCalculator:
         补全给定的config内部配置项信息
         """
         # 补全indicator_cfg中的indicator信息
-        for assetType,Dict in self.indicator_cfg.items():
-            for dbName, indicator_Dict in Dict.items():
-                # 判断数据库表对应的时间频率
-                if str(indicator_Dict["dataFreq"]).lower() in ["day","d","daily"]:
-                    self.dataPath_D_list.append(dbName)
-                else:
-                    self.dataPath_M_list.append(dbName)
+        for dbName, indicator_Dict in self.indicator_cfg.items():
+            # 判断数据库表对应的时间频率
+            if str(indicator_Dict["dataFreq"]).lower() in ["day","d","daily"]:
+                self.dataPath_D_list.append(dbName)
+            else:
+                self.dataPath_M_list.append(dbName)
 
-                # 补全字段名称
-                indicator_cfg = indicator_Dict["indicator"]
-                for indicator in list(indicator_cfg.keys()):
-                    if str(assetType)+str(dbName) not in indicator:
-                        new_indicator = str(assetType)+str(dbName)+"_"+indicator
-                        value = indicator_cfg[indicator]
-                        self.indicator_cfg[assetType][dbName]["indicator"][new_indicator] = value   # 创建补全资产类别+数据库_指标名称的新指标名
-                        self.indicator_cfg[assetType][dbName]["indicator"].pop(indicator)   # 删除老的键
+            # 补全字段名称
+            indicator_cfg = indicator_Dict["indicator"]
+            for indicator in list(indicator_cfg.keys()):
+                if str(dbName) not in indicator:
+                    new_indicator = str(assetType)+str(dbName)+"_"+indicator
+                    value = indicator_cfg[indicator]
+                    self.indicator_cfg[assetType][dbName]["indicator"][new_indicator] = value   # 创建补全资产类别+数据库_指标名称的新指标名
+                    self.indicator_cfg[assetType][dbName]["indicator"].pop(indicator)   # 删除老的键
 
         # 检查factor_cfg中的factor信息是否符合预期
         for factorName,Dict in self.factor_cfg.items():
@@ -186,8 +202,8 @@ class FactorCalculator:
             # 添加至对应的class名-因子名Dict
             className = Dict["class"]
             if className not in self.class_dict.keys():
-                self.class_dict[className] = []
-            self.class_dict[className].append(factorName)
+                self.classFactorName_dict[className] = []
+            self.classFactorName_dict[className].append(factorName)
 
             # 添加至对应的函数名-因子名Dict
             funcName = Dict["calFunc"]
@@ -210,6 +226,8 @@ class FactorCalculator:
                 self.factor_MM_list.append(factorName)
             else:
                 self.factor_MD_list.append(factorName)
+            # 填充DD_Dict, MD_Dict, MM_Dict
+            self.dataPath_D_list
 
     def init_def(self):
         self.session.run(f"""
@@ -241,24 +259,117 @@ class FactorCalculator:
         InsertMinFactor = InsertData{{"insertMinDB", "insertMinTB", , }};
         """.replace("insertDayDB",self.dayDB).replace("insertDayTB",self.dayTB).replace("insertMinDB",self.minDB).replace("insertMinTB",self.minTB)
 
-    def left_join(self, lpath: str, rpath: str, lindicator_dict: Dict, rindicator_dict: Dict):
+    def left_join_first(self, lpath: str, rpath: str, lindicator_dict: dict, rindicator_dict:dict, start_date: str, end_date: str):
         """
-        生成left join语句
+        生成left join语句(第一次生成SourceObj的语句, 后续由left_join函数使得SourceObj增量去left join右表)
         """
+        start_date, end_date = trans_time(start_date, end_date)
         # 获取左右表的数据库表名称
-        ldbName = self.indicator_cfg[lpath][0]
-        ltbName = self.indicator_cfg[lpath][1]
-        rdbName = self.indicator_cfg[rpath][0]
-        rtbName = self.indicator_cfg[rpath][1]
+        lcfg = self.indicator_cfg[lpath]
+        rcfg = self.indicator_cfg[rpath]
+        for colName in ["symbolCol","dateCol","timeCol"]:
+            if lcfg[colName] in ["", None]:
+                lcfg[colName] = "NA"
+            if rcfg[colName] in ["", None]:
+                rcfg[colName] = "NA"
 
         return f"""
-        // 利用DolphinDB SQL宏编程进行实现
-        ldb = sql(select=sqlCol())
-        rdb = 
-        
+        // 第一次left join
+        // 配置项
+        start_date = {start_date};
+        end_date = {end_date};
+        ldbName = "{lcfg["dataPath"][0]}";
+        ltbName = "{lcfg["dataPath"][1]}";
+        rdbName = "{rcfg["dataPath"][0]}";
+        rtbName = "{rcfg["dataPath"][1]}";
+        lsymbolCol = "{lcfg["symbolCol"]}";
+        ldateCol = "{lcfg["dateCol"]}";
+        ltimeCol = "{lcfg["timeCol"]}";
+        rsymbolCol = "{rcfg["symbolCol"]}";
+        rdateCol = "{rcfg["dateCol"]}";
+        rtimeCol = "{rcfg["timeCol"]}";
+        // 首先确定matchingCols ->左右表均不为NA的列名
+        leftIdxCols = array(STRING,0);
+        rightIdxCols = array(STRING,0);
+        matchingCols = array(STRING,0);
+        if (ldateCol!="NA" and rdateCol!="NA"){{
+            leftIdxCols.append!(ldateCol);
+            rightIdxCols.append!(rdateCol);
+            matchingCols.append!("TradeDate");
+        }};
+        if (ltimeCol!="NA" and rtimeCol!="NA"){{
+            leftIdxCols.append!(ltimeCol);
+            rightIdxCols.append!(rtimeCol);
+            matchingCols.append!("TradeTime");
+        }};
+        if (lsymbolCol!="NA" and rsymbolCol!="NA"){{
+            leftIdxCols.append!(lsymbolCol);
+            rightIdxCols.append!(rsymbolCol);
+            matchingCols.append!("symbol");
+        }};
+        lindicator_dict = {lindicator_dict};
+        rindicator_dict = {rindicator_dict};
+        lnames = matchingCols.copy().append!(string(lindicator_dict.keys()));
+        lselects = leftIdxCols.copy().append!(string(lindicator_dict.values()));
+        rnames = matchingCols.copy().append!(string(rindicator_dict.keys()));
+        rselects = rightIdxCols.copy().append!(string(rindicator_dict.values()));
+
+        if (ldateCol!="NA"){{
+            leftTable = <select _$$lselects as _$$lnames from loadTable(ldbName, ltbName) where _$ldateCol between start_date and end_date>.eval()              
+        }}else{{
+            leftTable = <select _$$lselects as _$$lnames from loadTable(ldbName, ltbName)>.eval()          
+        }}
+        if (rdateCol!="NA"){{
+            rightTable = <select _$$rselects as _$$rnames from loadTable(rdbName, rtbName) where _$rdateCol between start_date and end_date>.eval()              
+        }}else{{
+            rightTable = <select _$$rselects as _$$rnames from loadTable(rdbName, rtbName)>.eval()          
+        }};        
+        {self.sourceObj} = lsj(leftTable, rightTable, matchingCols)     
         """
 
-    def last_add(self, symbolCol:str, dateCol:str, nDays:int=1, marketType:str=None):
+    def left_join_after(self, rpath: str, rindicator_cfg: dict, start_date: str, end_date: str):
+        start_date, end_date = trans_time(start_date, end_date)
+        # 左表的名称为$sourceObj获取右表的数据库名称
+        rcfg = self.indicator_cfg[rpath]
+        for colName in ["symbolCol", "dateCol", "timeCol"]:
+            if rcfg[colName] in ["", None]:
+                rcfg[colName] = "NA"
+        return f"""
+        // 第二次及后续left join
+        // 配置项
+        rdbName = "{rcfg["dataPath"][0]}"
+        rtbName = "{rcfg["dataPath"][1]}"
+        rsymbolCol = "{rcfg["symbolCol"]};
+        rdateCol = "{rcfg["dateCol"]};
+        rtimeCol = "{rcfg["timeCol"]};
+        rightIdxCols = array(STRING,0);
+        matchingCols = array(STRING,0)
+        rindicator_dict = {rindicator_cfg}
+        // 这里的leftObj都是第一次Left semi join中的左表
+        if (ldateCol!="NA" and rdateCol!="NA"){{  
+            rightIdxCols.append!(rdateCol);
+            matchingCols.append!("TradeDate");
+        }};
+        if (ltimeCol!="NA" and rtimeCol!="NA"){{
+            rightIdxCols.append!(rtimeCol);
+            matchingCols.append!("TradeTime");
+        }};
+        if (lsymbolCol!="NA" and rsymbolCol!="NA"){{
+            rightIdxCols.append!(rsymbolCol);
+            matchingCols.append!("symbol");
+        }};
+        rnames = matchingCols.copy().append!(string(rindicator_dict.keys()))
+        rselects = rightIdxCols.copy().append!(string(rindicator_dict.values()))
+        
+        if (rdateCol!="NA"){{
+            rightTable = <select _$$rselects as _$$rnames from loadTable(rdbName, rtbName) where _$rdateCol between start_date and end_date>.eval()              
+        }}else{{
+            rightTable = <select _$$rselects as _$$rnames from loadTable(rdbName, rtbName)>.eval()          
+        }}
+        {self.sourceObj} = lsj({self.sourceObj}, rightTable, matchingCols)
+        """
+
+    def last_add(self, symbolCol:str, dateCol:str, nDays: int = 1, marketType: str = None):
         """
         追加数据 SQL 生成
         """
@@ -272,17 +383,36 @@ class FactorCalculator:
         undef(`last_pt);
         """
 
-    def run(self, dropDayDB: bool = False, dropDayTB: bool = False, dropMinDB: bool = False, dropMinTB: bool = False):
+    def run(self, start_date: str, end_date: str,
+            dropDayDB: bool = False,
+            dropDayTB: bool = False,
+            dropMinDB: bool = False,
+            dropMinTB: bool = False):
         """主函数"""
+        start_date, end_date = trans_time(start_date, end_date)
         # Step1. 初始化
         self.init_def() # 初始化相关变量+数据插入函数
         self.init_database(dropDayDB, dropDayTB, dropMinDB, dropMinTB)  # 初始化数据库
         self.init_check()
 
         # Step2. DD_list/MM_list/MD_list
-        # DD_list (left-join)
-        self.dolphindb_cmd+=f"""
-        """
+        # MD_list (left-join)
+        self.dataPath_MD_dict = {} # 存储所有MD格式的dataPath以及对应的因子list
+        for factorName in self.factor_MD_list:  # 遍历所有MD类型的因子
+            dataPath = self.factor_cfg[factorName]["dataPath"]
+            if dataPath not in self.dataPath_MD_dict.keys():
+                dataPath_MD_dict[dataPath] = []
+            dataPath_MD_dict[dataPath].append(factorName)
+        for dataPath,factorList in dataPath_MD.items():    # 遍历所有MD类型的数据库以及对应的因子List
+            # 准备这个dataPath下需要哪些因子
+
+            # 先添加left join数据
+            self.dolphindb_cmd+=f"""
+            {self.sourceObj} = lj(<>)
+            """
+
+            # 遍历
+
 
 
 if __name__ == "__main__":
