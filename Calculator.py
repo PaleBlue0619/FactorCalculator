@@ -69,9 +69,10 @@ def get_funcMapFromImport(*modules):
                 function_map[name] = obj
     return function_map
 
+
 def complete_factor_cfg(factor_cfg: Dict) -> Dict:
     """
-    使用迭代方式为每个因子补全dataPath信息
+    使用DFS方式为每个因子补全dataPath信息
     收集所有底层依赖的dataPath并合并到当前因子的dataPath中
     """
     factor_map = {name: cfg.copy() for name, cfg in factor_cfg.items()}
@@ -86,46 +87,45 @@ def complete_factor_cfg(factor_cfg: Dict) -> Dict:
             deps = [deps]
         dependency_map[factor_name] = deps
 
-    # 为每个因子找到所有底层依赖的dataPath
-    for factor_name in factor_map:
+    # 缓存已计算的结果，避免重复计算
+    data_path_cache = {}
+
+    def get_all_data_paths(factor_name, visited=None):
+        if visited is None:
+            visited = set()
+
+        # 检查循环依赖
+        if factor_name in visited:
+            raise ValueError(f"检测到循环依赖: {' -> '.join(visited)} -> {factor_name}")
+
+        # 如果已经缓存，直接返回
+        if factor_name in data_path_cache:
+            return data_path_cache[factor_name]
+
+        visited.add(factor_name)
         cfg = factor_map[factor_name]
 
-        # 使用集合来跟踪访问过的因子，避免循环依赖
-        visited = set()
-        current_deps = dependency_map[factor_name][:]
-        all_data_paths = []
+        # 收集所有依赖的dataPath
+        all_data_paths = set()
 
-        # 如果当前因子自己有dataPath，先加入
+        # 添加当前因子的dataPath
         if cfg['dataPath']:
-            all_data_paths.extend(cfg['dataPath'])
+            all_data_paths.update(cfg['dataPath'])
 
-        while current_deps:
-            dep_factor = current_deps.pop(0)
+        # 递归处理所有依赖
+        for dep in dependency_map[factor_name]:
+            dep_paths = get_all_data_paths(dep, visited.copy())
+            all_data_paths.update(dep_paths)
 
-            # 检查循环依赖
-            if dep_factor in visited:
-                raise ValueError(f"检测到循环依赖: {factor_name} -> {dep_factor}")
-            visited.add(dep_factor)
+        # 转换为列表并保持顺序（如果需要）
+        result = list(all_data_paths)
+        data_path_cache[factor_name] = result
+        return result
 
-            dep_cfg = factor_map[dep_factor]
-
-            # 如果依赖的因子有dataPath，直接收集
-            if dep_cfg['dataPath']:
-                all_data_paths.extend(dep_cfg['dataPath'])
-
-            # 无论依赖的因子是否有dataPath，都要继续追溯它的依赖
-            # 因为可能依赖的因子本身没有dataPath，但它依赖的其他因子有
-            current_deps.extend(dependency_map[dep_factor])
-
-        # 去重并保持顺序
-        unique_paths = []
-        seen_paths = set()
-        for path in all_data_paths:
-            if path not in seen_paths:
-                seen_paths.add(path)
-                unique_paths.append(path)
-
-        cfg['dataPath'] = unique_paths
+    # 为每个因子计算完整的dataPath
+    for factor_name in factor_map:
+        if factor_name not in data_path_cache:
+            factor_map[factor_name]['dataPath'] = get_all_data_paths(factor_name)
 
     return factor_map
 
@@ -229,7 +229,7 @@ class FactorCalculator:
         if not self.session.existsTable(dbUrl=self.dayDB,tableName=self.dayTB):
             self.session.run(f"""
             db1 = database(,VALUE,2010.01M..2030.01M)
-            db2 = database(,LIST,[`Maxim`DolphinDB])
+            db2 = database(,VALUE,[`Maxim,`DolphinDB])
             db = database("{self.dayDB}",partitionType=COMPO, partitionScheme=[db1, db2], engine="TSDB")
             schemaTb = table(1:0, ["symbol","date","factor","value"],[SYMBOL,DATE,SYMBOL,DOUBLE])
             db.createPartitionedTable(schemaTb, "{self.dayTB}", partitionColumns=`date`factor, sortColumns=`factor`symbol`date, keepDuplicates=LAST)
@@ -237,7 +237,7 @@ class FactorCalculator:
         if not self.session.existsTable(dbUrl=self.minDB,tableName=self.dayTB):
             self.session.run(f"""
             db1 = database(,VALUE,2010.01M..2030.01M)
-            db2 = database(,LIST,[`Maxim`DolphinDB])
+            db2 = database(,VALUE,[`Maxim,`DolphinDB])
             db = database("{self.minDB}",partitionType=COMPO, partitionScheme=[db1, db2], engine="TSDB")
             schemaTb = table(1:0, ["symbol","date","time","factor","value"], [SYMBOL,DATE,TIME,SYMBOL,DOUBLE])
             db.createPartitionedTable(schemaTb, "{self.minTB}", partitionColumns=`date`factor, sortColumns=`factor`symbol`time`date, keepDuplicates=LAST)
@@ -456,6 +456,8 @@ class FactorCalculator:
         return f"""
         // 第二次及后续left join
         // 配置项
+        start_date = {start_date};
+        end_date = {end_date};
         rdbName = "{rcfg["dataPath"][0]}"
         rtbName = "{rcfg["dataPath"][1]}"
         rsymbolCol = "{rcfg["symbolCol"]};
@@ -508,10 +510,18 @@ class FactorCalculator:
         """
         day_factor_need= [i for i in self.factor_day_list if i in self.factor_need]
         min_factor_need= [i for i in self.factor_min_list if i in self.factor_need]
-        return f"""
+        return f"""            
             day_factor_need = {day_factor_need};  // 所有需要添加至日频因子数据库的因子列表
             min_factor_need = {min_factor_need};  // 所有需要添加至分钟频因子数据库的因子列表
+            // 先向数据库添加指定分区
+            if (size(day_factor_need)>0){{
+                addValuePartitions(database("{self.dayDB}"),day_factor_need,1); // 添加至COMPO分区的第一层
+            }}
+            if (size(min_factor_need)>0){{
+                addValuePartitions(database("{self.minDB}"),min_factor_need,1); // 添加至COMPO分区的第一层
+            }}            
             for (factor in day_factor_need){{
+                print(select * from {self.factorDict}[factor] limit 10)
                 InsertDayFactor({self.factorDict}[factor],1000000); 
                 print("日频因子"+factor+"Insert完毕");
             }};
@@ -637,7 +647,7 @@ class FactorCalculator:
                     self.dolphindb_cmd += calFunc(self,factorName)
         # 运行
         self.dolphindb_cmd+=self.update_data() # 上传至数据库的SQL语句
-        self.session.run(self.dolphindb_cmd)    # 运行
+        # self.session.run(self.dolphindb_cmd)    # 运行
 
 if __name__ == "__main__":
     import func.factorfunc0903 as calFunc
@@ -652,11 +662,14 @@ if __name__ == "__main__":
     session=ddb.session()
     # session.connect("localhost",8848,"admin","123456")
     session.connect("172.16.0.184",8001,"maxim","dyJmoc-tiznem-1figgu")
-    #pool=ddb.DBConnectionPool("172.16.0.184",8001,10,"maxim","dyJmoc-tiznem-1figgu")
+    # pool=ddb.DBConnectionPool("172.16.0.184",8001,10,"maxim","dyJmoc-tiznem-1figgu")
     F = FactorCalculator(session=session, config=config,
                          factor_cfg=factor_cfg,
                          indicator_cfg=indicator_cfg,
                          func_map=get_funcMapFromImport(midFunc, classFunc, calFunc),
                          class_cfg=class_cfg)
-    F.set_factorList(factor_list=list(factor_cfg.keys()))
+    # F.init_database(True,True,True,True)
+    # F.set_factorList(factor_list=list(factor_cfg.keys()))
+    F.set_factorList(factor_list=["shio_avg20_plus"])
     F.run(start_date="20200101",end_date="20250430")
+    print(F.dolphindb_cmd)

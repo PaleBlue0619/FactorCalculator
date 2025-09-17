@@ -1,8 +1,15 @@
-// 注: 这里强烈建议引用依赖只使用因子值本身而不使用
-// class中的函数一定一定是幂等的!!!
+// 建议引用依赖只使用因子值本身而不使用中间变量
+// class中的函数最好是幂等的
 // 因子不允许同名,即使一个是分钟频一个是日频也不行
-// MD格式的因子最左边的一定是行情表
 {
+    "shio_avg20_plus": {
+        "class": "shio",
+        "calFunc":"get_shio_avg20_plus",
+        "dependency": {"factor": ["shio","shio_std20"], "midFunc": null},
+        "dataPath": [],
+        "indicator": [],
+        "params": {"freq": "day","callBackPeriod": 20}
+    },
     "shio":{
         "class":"shio",  // 如果该class下注册了对应的函数, 会在第一次遇到这个class下的因子后执行, 后续不会重复执行
         "calFunc":"get_shio",
