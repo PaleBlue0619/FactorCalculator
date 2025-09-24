@@ -17,7 +17,7 @@
     },
    "stockMin1KBar":{
      "dataPath": ["dfs://MinKDBOfIndex","MinFreq500"],
-     "dataFreq": "minute",
+     "dataFreq": "minute", // 分钟频
      "dateCol": "TradeDate",
      "timeCol": "TradeTime",
      "symbolCol": "symbol",
@@ -29,5 +29,29 @@
        "stockMin1KBar_volume": "volume",
        "stockMin1KBar_amount": "amount"
      }
-   }
+   },
+  "stockBasic": {
+    "dataPath": ["dfs://DayKDB","o_tushare_a_stock_daily_basic"],
+    "dataFreq": "day", // 日频
+    "dateCol": "trade_date",
+    "timeCol": null,
+    "symbolCol": "ts_code",
+    "indicator": {
+      "stockBasic_turnoverRate": "turnover_rate",
+      "stockBasic_turnoverRateF": "turnover_rate_f",
+      "stockBasic_volumeRatio": "volume_ratio",
+      "stockBasic_PE": "pe",
+      "stockBasic_PETTM": "pe_ttm",
+      "stockBasic_PB": "PB",
+      "stockBasic_PS": "PS",
+      "stockBasic_PSTTM": "ps_ttm",
+      "stockBasic_DVRatio": "dv_ratio",
+      "stockBasic_DVTTM": "dv_ttm",
+      "stockBasic_TotalShare": "total_share",
+      "stockBasic_FloatShare": "float_share",
+      "stockBasic_FreeShare": "free_share",
+      "stockBasic_TotalMV": "total_mv",
+      "stockBasic_CircMV": "circ_mv"
+    },
+  }
 }

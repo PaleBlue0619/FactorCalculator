@@ -1,5 +1,6 @@
 // 记录了不同类别的因子下需要提前运行的函数名称
 {
   "stock": null,
-  "shio": ["shioDataPrepare"]
+  "shio": ["shioDataPrepare"],
+  "vaR": ["vaRDataPrepare"]
 }

@@ -33,24 +33,31 @@ def trans_time(start_date: str, end_date:str):
     end_date = pd.Timestamp(end_date).strftime("%Y.%m.%d")
     return start_date, end_date
 
-
 def get_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[str]:
     """
     安全版本：处理循环依赖
     """
     G = nx.DiGraph()
 
+    # 首先添加所有在 factor_cfg 中的节点
+    G.add_nodes_from(factor_cfg.keys())
+
     # 构建依赖图
     for factor, cfg in factor_cfg.items():
         deps = cfg['dependency']['factor'] or []
         deps = [deps] if isinstance(deps, str) else deps
         for dep in deps:
+            # 确保依赖的节点也在图中
+            if dep not in G:
+                G.add_node(dep)
             G.add_edge(dep, factor)
 
     # 收集所有相关节点
     all_nodes = set(factor_list)
     for factor in factor_list:
-        all_nodes.update(nx.ancestors(G, factor))
+        # 确保因子在图中
+        if factor in G:
+            all_nodes.update(nx.ancestors(G, factor))
 
     # 检查循环依赖
     try:
@@ -58,6 +65,31 @@ def get_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[st
     except nx.NetworkXUnfeasible:
         # 有循环依赖时，返回按字母排序
         return sorted(all_nodes)
+
+# def get_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[str]:
+#     """
+#     安全版本：处理循环依赖
+#     """
+#     G = nx.DiGraph()
+#
+#     # 构建依赖图
+#     for factor, cfg in factor_cfg.items():
+#         deps = cfg['dependency']['factor'] or []
+#         deps = [deps] if isinstance(deps, str) else deps
+#         for dep in deps:
+#             G.add_edge(dep, factor)
+#
+#     # 收集所有相关节点
+#     all_nodes = set(factor_list)
+#     for factor in factor_list:
+#         all_nodes.update(nx.ancestors(G, factor))
+#
+#     # 检查循环依赖
+#     try:
+#         return list(nx.topological_sort(G.subgraph(all_nodes)))
+#     except nx.NetworkXUnfeasible:
+#         # 有循环依赖时，返回按字母排序
+#         return sorted(all_nodes)
 
 def get_funcMapFromImport(*modules):
     """从指定模块收集函数"""
@@ -531,7 +563,6 @@ class FactorCalculator:
             }}
         """
 
-
     def get_featuresGivenFactor(self, factor_list: List) -> Dict:
         """
         给定因子list, 自动返回一个Dict<dataPath: feature_Dict>
@@ -647,12 +678,10 @@ class FactorCalculator:
                     self.dolphindb_cmd += calFunc(self,factorName)
         # 运行
         self.dolphindb_cmd+=self.update_data() # 上传至数据库的SQL语句
-        # self.session.run(self.dolphindb_cmd)    # 运行
+        self.session.run(self.dolphindb_cmd)    # 运行
 
 if __name__ == "__main__":
-    import func.factorfunc0903 as calFunc
-    import func.classfunc0903 as classFunc
-    import func.midfunc0903 as midFunc
+    from func import classFunc,shioMidFunc,shioCalFunc,varCalFunc,coinCalFunc
     with open(r".\config\factor.json5", "r",encoding='utf-8') as f:
         factor_cfg = json5.load(f)
     with open(r".\config\indicator.json5","r",encoding='utf-8') as f:
@@ -666,10 +695,11 @@ if __name__ == "__main__":
     F = FactorCalculator(session=session, config=config,
                          factor_cfg=factor_cfg,
                          indicator_cfg=indicator_cfg,
-                         func_map=get_funcMapFromImport(midFunc, classFunc, calFunc),
+                         func_map=get_funcMapFromImport(classFunc,
+                                                        shioMidFunc,
+                                                        shioCalFunc,varCalFunc,coinCalFunc),
                          class_cfg=class_cfg)
     # F.init_database(True,True,True,True)
-    # F.set_factorList(factor_list=list(factor_cfg.keys()))
-    F.set_factorList(factor_list=["shio_avg20_plus"])
+    F.set_factorList(factor_list=list(factor_cfg.keys()))
     F.run(start_date="20200101",end_date="20250430")
     print(F.dolphindb_cmd)
