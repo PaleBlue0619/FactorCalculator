@@ -137,22 +137,26 @@ def complete_factor_cfg(factor_cfg: Dict) -> Dict:
         visited.add(factor_name)
         cfg = factor_map[factor_name]
 
-        # 收集所有依赖的dataPath
-        all_data_paths = set()
+        # 使用有序列表来保持顺序
+        all_data_paths = []
 
-        # 添加当前因子的dataPath
+        # 先添加当前因子的dataPath（保持原有顺序）
         if cfg['dataPath']:
-            all_data_paths.update(cfg['dataPath'])
+            # 去重添加当前因子的dataPath
+            for path in cfg['dataPath']:
+                if path not in all_data_paths:
+                    all_data_paths.append(path)
 
         # 递归处理所有依赖
         for dep in dependency_map[factor_name]:
             dep_paths = get_all_data_paths(dep, visited.copy())
-            all_data_paths.update(dep_paths)
+            # 添加依赖的dataPath，保持顺序且去重
+            for path in dep_paths:
+                if path not in all_data_paths:
+                    all_data_paths.append(path)
 
-        # 转换为列表并保持顺序（如果需要）
-        result = list(all_data_paths)
-        data_path_cache[factor_name] = result
-        return result
+        data_path_cache[factor_name] = all_data_paths
+        return all_data_paths
 
     # 为每个因子计算完整的dataPath
     for factor_name in factor_map:
@@ -208,11 +212,11 @@ class FactorCalculator:
         self.factor_min_list = []   # 分钟频因子列表
 
         # 划分维度2: 按照数据库维度进行划分->统一维度/不同维度
-        self.dataPath_D_list = []   # 日频数据表
-        self.dataPath_M_list = []   # 分钟频数据表
         self.factor_DD_list = []    # 需要纯日频数据/日频+日频数据
         self.factor_MM_list = []    # 需要纯分钟频数据/分钟频+分钟频数据
         self.factor_MD_list = []    # 分钟频left join日频数据
+        self.dataPath_D_list = []
+        self.dataPath_M_list = []
         self.dataPath_DD_dict = {}
         self.dataPath_MM_dict = {}
         self.dataPath_MD_dict = {}
@@ -292,10 +296,10 @@ class FactorCalculator:
             indicator_cfg = indicator_Dict["indicator"]
             for indicator in list(indicator_cfg.keys()):
                 if str(dbName) not in indicator:
-                    new_indicator = str(assetType)+str(dbName)+"_"+indicator
+                    new_indicator = str(dbName)+"_"+indicator
                     value = indicator_cfg[indicator]
-                    self.indicator_cfg[assetType][dbName]["indicator"][new_indicator] = value   # 创建补全资产类别+数据库_指标名称的新指标名
-                    self.indicator_cfg[assetType][dbName]["indicator"].pop(indicator)   # 删除老的键
+                    self.indicator_cfg[dbName]["indicator"][new_indicator] = value   # 创建补全资产类别+数据库_指标名称的新指标名
+                    self.indicator_cfg[dbName]["indicator"].pop(indicator)   # 删除老的键
 
         # 检查factor_cfg中的factor信息是否符合预期
         for factorName,Dict in self.factor_cfg.items():
@@ -305,7 +309,6 @@ class FactorCalculator:
                 for j in range(len(indicatorList)): # 对当前数据库下的每一个indicator进行判断
                     if str(dataPath) not in indicatorList[j]:
                         self.factor_cfg[factorName]["indicator"][i][j] = str(dataPath)+"_"+self.factor_cfg[factorName]["indicator"][i][j]
-
             # 添加至对应频率的因子列表
             if str(Dict["params"]["freq"]).lower() in ["minute","m","min"]:
                 self.factor_min_list.append(factorName)
@@ -338,8 +341,6 @@ class FactorCalculator:
                 self.factor_MM_list.append(factorName)
             else:
                 self.factor_MD_list.append(factorName)
-            # 填充DD_Dict, MD_Dict, MM_Dict
-            self.dataPath_D_list
 
     def init_def(self):
         self.session.run(f"""
@@ -588,28 +589,9 @@ class FactorCalculator:
         return sort_factor_byDependency(factor_cfg=self.factor_cfg,
                                       factor_list=factor_list)
 
-
-    def run(self, start_date: str, end_date: str,
-            dropDayDB: bool = False,
-            dropDayTB: bool = False,
-            dropMinDB: bool = False,
-            dropMinTB: bool = False):
-        """主函数"""
+    def processing(self, start_date: str, end_date: str, dataPathDict: Dict):
         start_date, end_date = trans_time(start_date, end_date)
-        # Step1. 初始化
-        self.init_def() # 初始化相关变量+数据插入函数
-        self.init_database(dropDayDB, dropDayTB, dropMinDB, dropMinTB)  # 初始化数据库
-        self.init_check()
-
-        # Step2. DD_list/MM_list/MD_list
-        # MD_list (left-join)
-        self.dataPath_MD_dict = {} # 存储所有MD格式的dataPath以及对应的因子list
-        for factorName in self.factor_MD_list:  # 遍历所有MD类型的因子
-            dataPath = "$".join(self.factor_cfg[factorName]["dataPath"])
-            if dataPath not in self.dataPath_MD_dict.keys():
-                self.dataPath_MD_dict[dataPath] = []
-            self.dataPath_MD_dict[dataPath].append(factorName)
-        for dataPath,factorList in self.dataPath_MD_dict.items():    # 遍历所有MD类型的数据库以及对应的因子List
+        for dataPath, factorList in dataPathDict.items():  # 遍历所有MD类型的数据库以及对应的因子List
             # 准备这个dataPath下需要哪些特征 -> dict(dbName, feature_dict)
             dataPath = dataPath.split("$")
             featureDict = self.get_featuresGivenFactor(factorList)
@@ -619,17 +601,17 @@ class FactorCalculator:
             # 先添加left join数据 -> 对于该数据库对+对应的因子列表，初始化sourceObj
             if len(dataPath) == 1:  # 说明不需要执行semi-leftJoin
                 self.dolphindb_cmd += self.no_leftJoin(dataPath=dataPath[0],
-                                                     indicator_dict=featureDict[dataPath[0]],
-                                                     start_date=start_date,
-                                                     end_date=end_date)
-            elif len(dataPath) >= 2: # 说明需要执行semi-leftJoin
+                                                       indicator_dict=featureDict[dataPath[0]],
+                                                       start_date=start_date,
+                                                       end_date=end_date)
+            elif len(dataPath) >= 2:  # 说明需要执行semi-leftJoin
                 self.dolphindb_cmd += self.first_leftJoin(lpath=dataPath[0], rpath=dataPath[1],
                                                           lindicator_dict=featureDict[dataPath[0]],
                                                           rindicator_dict=featureDict[dataPath[1]],
                                                           start_date=start_date,
                                                           end_date=end_date)
-                if len(dataPath) >= 3: # 说明从左到右依次执行多次semi-leftJoin
-                    for i in range(2,len(dataPath)):
+                if len(dataPath) >= 3:  # 说明从左到右依次执行多次semi-leftJoin
+                    for i in range(2, len(dataPath)):
                         self.dolphindb_cmd += self.after_leftJoin(rpath=dataPath[i],
                                                                   rindicator_cfg=featureDict[dataPath[i]],
                                                                   start_date=start_date,
@@ -641,9 +623,9 @@ class FactorCalculator:
             for factorName in factorList:
                 # 获取这个因子的class, 判断有没有设置对应的classFunc
                 class_ = self.factor_cfg[factorName]["class"]
-                if class_ not in classList: # 被执行/判断过了
+                if class_ not in classList:  # 被执行/判断过了
                     continue
-                classList.remove(class_)    # 进入执行/判断分支
+                classList.remove(class_)  # 进入执行/判断分支
                 if class_ not in self.class_cfg.keys():
                     continue
                 funcList = self.class_cfg[class_]
@@ -653,9 +635,9 @@ class FactorCalculator:
                 for funcName in funcList:
                     res = self.func_map[funcName](self)
                     if isinstance(res, dict):
-                        self.dolphindb_cmd+=res["cmd"]
+                        self.dolphindb_cmd += res["cmd"]
                     else:
-                        self.dolphindb_cmd+=res
+                        self.dolphindb_cmd += res
 
             # 再分别执行因子计算函数factorFunc
             for factorName in factorList:
@@ -666,19 +648,55 @@ class FactorCalculator:
                         res = self.func_map[midFunc](self)
                         if isinstance(res, dict):
                             res = res["cmd"]
-                        self.dolphindb_cmd+= res
+                        self.dolphindb_cmd += res
                 # 获取这个因子的计算函数
                 calFuncName = self.factor_cfg[factorName]["calFunc"]
-                paramsDict = self.factor_cfg[factorName]  # 获取这个factor的一且信息
+                paramsDict = self.factor_cfg[factorName]  # 获取这个factor的一切信息
                 calFunc = self.func_map[calFuncName]
                 nParams = calFunc.__code__.co_argcount
                 if nParams == 3:
-                    self.dolphindb_cmd+= calFunc(self,factorName,paramsDict)
+                    self.dolphindb_cmd += calFunc(self, factorName, paramsDict)
                 else:
-                    self.dolphindb_cmd += calFunc(self,factorName)
+                    self.dolphindb_cmd += calFunc(self, factorName)
+
+    def run(self, start_date: str, end_date: str,
+            dropDayDB: bool = False,
+            dropDayTB: bool = False,
+            dropMinDB: bool = False,
+            dropMinTB: bool = False):
+        """主函数"""
+        # Step1. 初始化
+        self.init_def() # 初始化相关变量+数据插入函数
+        self.init_database(dropDayDB, dropDayTB, dropMinDB, dropMinTB)  # 初始化数据库
+        self.init_check()
+
+        # Step2. DD_list/MM_list/MD_list
+        # MD_list (left-join)
+        self.dataPath_MD_dict = {}  # 存储所有MD格式的dataPath以及对应的因子list
+        for factorName in self.factor_MD_list:  # 遍历所有MD类型的因子
+            dataPath = "$".join(self.factor_cfg[factorName]["dataPath"])
+            if dataPath not in self.dataPath_MD_dict.keys():
+                self.dataPath_MD_dict[dataPath] = []
+            self.dataPath_MD_dict[dataPath].append(factorName)
+        self.dataPath_MM_dict = {}
+        for factorName in self.factor_MM_list: # 遍历所有MM类型的因子
+            dataPath = "$".join(self.factor_cfg[factorName]["dataPath"])
+            if dataPath not in self.dataPath_MM_dict.keys():
+                self.dataPath_MM_dict[dataPath] = []
+            self.dataPath_MM_dict[dataPath].append(factorName)
+        self.dataPath_DD_dict = {}
+        for factorName in self.factor_DD_list: # 遍历所有DD类型的因子
+            dataPath = "$".join(self.factor_cfg[factorName]["dataPath"])
+            if dataPath not in self.dataPath_DD_dict.keys():
+                self.dataPath_DD_dict[dataPath] = []
+            self.dataPath_DD_dict[dataPath].append(factorName)
+
         # 运行
+        self.processing(start_date, end_date, self.dataPath_MD_dict)
+        self.processing(start_date, end_date, self.dataPath_MM_dict)
+        self.processing(start_date, end_date, self.dataPath_DD_dict)
         self.dolphindb_cmd+=self.update_data() # 上传至数据库的SQL语句
-        self.session.run(self.dolphindb_cmd)    # 运行
+        # self.session.run(self.dolphindb_cmd)    # 运行
 
 if __name__ == "__main__":
     from func import classFunc,shioMidFunc,shioCalFunc,varCalFunc,coinCalFunc
@@ -703,3 +721,4 @@ if __name__ == "__main__":
     F.set_factorList(factor_list=list(factor_cfg.keys()))
     F.run(start_date="20200101",end_date="20250430")
     print(F.dolphindb_cmd)
+

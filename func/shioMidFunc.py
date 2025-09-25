@@ -37,7 +37,7 @@ def shioStrongFunc(self: FactorCalculator) -> Dict:
         }};
     ""","var":None}
 
-def shioWeekFunc(self: FactorCalculator) -> Dict:
+def shioWeakFunc(self: FactorCalculator) -> Dict:
     # 退潮半潮汐函数
     return {"cmd":f"""
      defg shioWeakFunc(mvol, price){{ // defg聚合函数声明

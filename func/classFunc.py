@@ -26,4 +26,5 @@ def vaRDataPrepare(self: FactorCalculator) -> Dict:
     cvarFunc = condValueAtRisk{{, 'normal',0.95}};
     update {self.sourceObj} set vwap = nullFill!({amountCol}/{volumeCol},0);
     update {self.sourceObj} set ret240 = nullFill(({closeCol}-move({closeCol},240))/{closeCol},0.0) context by {self.symbolCol};
+    update {self.sourceObj} set ret240 = clip(ret240,-0.99,0.99);
     """}
