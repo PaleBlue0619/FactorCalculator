@@ -18,7 +18,7 @@ def get_shio(self: FactorCalculator, factorName: str, feature: Dict, **args):
 def get_shio_avg20(self: FactorCalculator, factorName: str, feature: Dict, **args):
     dependFactor = feature["dependency"]["factor"][0]   # 依赖计算的因子
     return f"""
-    {self.middleObj} = {self.factorDict}["{dependFactor}"];
+    {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mavg({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
@@ -28,7 +28,7 @@ def get_shio_avg20(self: FactorCalculator, factorName: str, feature: Dict, **arg
 def get_shio_std20(self: FactorCalculator, factorName: str, feature: Dict, **args):
     dependFactor = feature["dependency"]["factor"][0]  # 依赖计算的因子
     return f"""
-    {self.middleObj} = {self.factorDict}["{dependFactor}"];
+    {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mstd({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
@@ -49,7 +49,7 @@ def get_shioStrong(self: FactorCalculator, factorName: str, **args):
 def get_shioStrong_avg20(self: FactorCalculator, factorName: str, feature: Dict, **args):
     dependFactor = feature["dependency"]["factor"][0]   # 依赖计算的因子
     return f"""
-    {self.middleObj} = {self.factorDict}["{dependFactor}"];
+    {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mavg({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
@@ -59,7 +59,7 @@ def get_shioStrong_avg20(self: FactorCalculator, factorName: str, feature: Dict,
 def get_shioStrong_std20(self: FactorCalculator, factorName: str, feature: Dict, **args):
     dependFactor = feature["dependency"]["factor"][0]  # 依赖计算的因子
     return f"""
-    {self.middleObj} = {self.factorDict}["{dependFactor}"];
+    {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mstd({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
@@ -80,7 +80,7 @@ def get_shioWeak(self: FactorCalculator, factorName: str, feature: Dict, **args)
 def get_shioWeak_avg20(self: FactorCalculator, factorName: str, feature: Dict, **args):
     dependFactor = feature["dependency"]["factor"][0]   # 依赖计算的因子
     return f"""
-    {self.middleObj} = {self.factorDict}["{dependFactor}"];
+    {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mavg({dependFactor}, 20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
@@ -90,7 +90,7 @@ def get_shioWeak_avg20(self: FactorCalculator, factorName: str, feature: Dict, *
 def get_shioWeak_std20(self: FactorCalculator, factorName: str, feature: Dict, **args):
     dependFactor = feature["dependency"]["factor"][0]   # 依赖计算的因子
     return f"""
-    {self.middleObj} = {self.factorDict}["{dependFactor}"];
+    {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mstd({dependFactor}, 20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量

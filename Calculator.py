@@ -345,9 +345,9 @@ class FactorCalculator:
     def init_def(self):
         self.session.run(f"""
         {self.sourceObj}=0;
-        {self.middleObj}=dict(STRING,ANY);  // 中间无关变量
+        {self.middleObj}=syncDict(STRING,ANY);  // [线程安全Dict]中间无关变量
         {self.dataObj}=0;
-        {self.factorDict}=dict(STRING,ANY); // 因子变量,算完了丢进去
+        {self.factorDict}=syncDict(STRING,ANY); // [线程安全Dict]因子变量,算完了丢进去
         """+self.data_insert()  # 定义插入函数
         )
     def data_insert(self):
@@ -391,7 +391,7 @@ class FactorCalculator:
         matchingCols = array(STRING,0);
         indicator_dict = {indicator_dict};
         if (dateCol!="NA"){{
-            idxCols.append!(ldateCol);
+            idxCols.append!(dateCol);
             matchingCols.append!("TradeDate");
         }};
         if (timeCol!="NA"){{
@@ -477,6 +477,7 @@ class FactorCalculator:
             rightTable = <select _$$rselects as _$$rnames from loadTable(rdbName, rtbName)>.eval()          
         }};        
         {self.sourceObj} = lsj(leftTable, rightTable, matchingCols);     
+        undef(`leftTable`rightTable);  // 释放内存
         """
 
     def after_leftJoin(self, rpath: str, rindicator_dict: dict, start_date: str, end_date: str):
@@ -521,6 +522,7 @@ class FactorCalculator:
             rightTable = <select _$$rselects as _$$rnames from loadTable(rdbName, rtbName)>.eval()          
         }}
         {self.sourceObj} = lsj({self.sourceObj}, rightTable, matchingCols);
+        undef(`rightTable); // 释放内存
         """
 
     def last_add(self, symbolCol:str, dateCol:str, nDays: int = 1, marketType: str = None):
@@ -534,7 +536,7 @@ class FactorCalculator:
         last_data=select * from data context by {symbolCol} limit -1; // 选取最后一个日期加一的形式作为决策的形式
         update last_data set {dateCol} = temporalAdd({dateCol},{nDays},"{marketType}")
         append!(pt,last_pt);
-        undef(`last_pt);
+        undef(`last_pt); // 释放内存
         """
 
     def update_data(self):
@@ -696,7 +698,7 @@ class FactorCalculator:
         self.processing(start_date, end_date, self.dataPath_MM_dict)
         self.processing(start_date, end_date, self.dataPath_DD_dict)
         self.dolphindb_cmd+=self.update_data() # 上传至数据库的SQL语句
-        # self.session.run(self.dolphindb_cmd)    # 运行
+        self.session.run(self.dolphindb_cmd)    # 运行
 
 if __name__ == "__main__":
     from func import classFunc,shioMidFunc,shioCalFunc,varCalFunc,coinCalFunc

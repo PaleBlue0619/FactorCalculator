@@ -10,7 +10,7 @@ def get_interDayReturn(self: FactorCalculator, factorName: str, feature: Dict, *
     closeCol = "stockDayKBar_close"
     return f"""
     {self.dataObj} =  select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,
-                             ({openCol}-prev({closeCol}))\prev({closeCol}) from {self.middleObj} 
+                             ({openCol}-prev({closeCol}))\prev({closeCol}) as {factorName} from {self.sourceObj} 
                              context by {self.symbolCol}; 
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
     print("因子{factorName}计算完毕");
@@ -19,7 +19,7 @@ def get_interDayReturn(self: FactorCalculator, factorName: str, feature: Dict, *
 def get_interDayReturn_avg20(self: FactorCalculator, factorName: str, feature: Dict, **args):
     dependFactor = feature["dependency"]["factor"][0]  # 依赖计算的因子
     return f"""
-    {self.middleObj} = {self.factorDict}["{dependFactor}"];
+    {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mavg({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
@@ -29,7 +29,7 @@ def get_interDayReturn_avg20(self: FactorCalculator, factorName: str, feature: D
 def get_interDayReturn_std20(self: FactorCalculator, factorName: str, feature: Dict, **args):
     dependFactor = feature["dependency"]["factor"][0]  # 依赖计算的因子
     return f"""
-    {self.middleObj} = {self.factorDict}["{dependFactor}"];
+    {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mstd({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量

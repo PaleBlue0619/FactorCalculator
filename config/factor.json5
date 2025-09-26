@@ -74,22 +74,22 @@
         "indicator": [],
         "params": {"freq": "day","callBackPeriod": 20}
     },
-    "vaR240_m120": {
-        "class": "vaR",
-        "calFunc": "get_vaR240_m120",
-        "dependency": {"factor": null, "midFunc": null},
-        "dataPath": ["stockMin1KBar"],
-        "indicator": [["close","volume","amount"]],
-        "params": {"freq": "minute", "callBackPeriod": 120}
-    },
-    "cvaR240_m120": {
-        "class": "vaR",
-        "calFunc": "get_cvaR240_m120",
-        "dependency": {"factor": null, "midFunc": null},
-        "dataPath": ["stockMin1KBar"],
-        "indicator": [["close","volume","amount"]],
-        "params": {"freq": "minute", "callBackPeriod": 120}
-    },
+//    "vaR240_m120": {
+//        "class": "vaR",
+//        "calFunc": "get_vaR240_m120",
+//        "dependency": {"factor": null, "midFunc": null},
+//        "dataPath": ["stockMin1KBar"],
+//        "indicator": [["close","volume","amount"]],
+//        "params": {"freq": "minute", "callBackPeriod": 120}
+//    },
+//    "cvaR240_m120": {
+//        "class": "vaR",
+//        "calFunc": "get_cvaR240_m120",
+//        "dependency": {"factor": null, "midFunc": null},
+//        "dataPath": ["stockMin1KBar"],
+//        "indicator": [["close","volume","amount"]],
+//        "params": {"freq": "minute", "callBackPeriod": 120}
+//    },
     "interDayReturn": {
         "class": "stock",
         "calFunc": "get_interDayReturn",
