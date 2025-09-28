@@ -66,31 +66,6 @@ def get_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[st
         # 有循环依赖时，返回按字母排序
         return sorted(all_nodes)
 
-# def get_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[str]:
-#     """
-#     安全版本：处理循环依赖
-#     """
-#     G = nx.DiGraph()
-#
-#     # 构建依赖图
-#     for factor, cfg in factor_cfg.items():
-#         deps = cfg['dependency']['factor'] or []
-#         deps = [deps] if isinstance(deps, str) else deps
-#         for dep in deps:
-#             G.add_edge(dep, factor)
-#
-#     # 收集所有相关节点
-#     all_nodes = set(factor_list)
-#     for factor in factor_list:
-#         all_nodes.update(nx.ancestors(G, factor))
-#
-#     # 检查循环依赖
-#     try:
-#         return list(nx.topological_sort(G.subgraph(all_nodes)))
-#     except nx.NetworkXUnfeasible:
-#         # 有循环依赖时，返回按字母排序
-#         return sorted(all_nodes)
-
 def get_funcMapFromImport(*modules):
     """从指定模块收集函数"""
     function_map = {}
@@ -698,7 +673,8 @@ class FactorCalculator:
         self.processing(start_date, end_date, self.dataPath_MM_dict)
         self.processing(start_date, end_date, self.dataPath_DD_dict)
         self.dolphindb_cmd+=self.update_data() # 上传至数据库的SQL语句
-        self.session.run(self.dolphindb_cmd)    # 运行
+        # self.session.run(self.dolphindb_cmd)    # 运行
+
 
 if __name__ == "__main__":
     from func import classFunc,shioMidFunc,shioCalFunc,varCalFunc,coinCalFunc

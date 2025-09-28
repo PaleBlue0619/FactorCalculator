@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Awesome-pyecharts</title>
+                <script type="text/javascript" src="https://assets.pyecharts.org/assets/v5/echarts.min.js"></script>
+
+</head>
+<body >
+    <div id="02c1ac7e870942028bc486c34b90a437" class="chart-container" style="width:1600px; height:900px; "></div>
+    <script>
+        var chart_02c1ac7e870942028bc486c34b90a437 = echarts.init(
+            document.getElementById('02c1ac7e870942028bc486c34b90a437'), 'white', {renderer: 'canvas'});
+        var option_02c1ac7e870942028bc486c34b90a437 = {
+    "animation": true,
+    "animationThreshold": 2000,
+    "animationDuration": 1000,
+    "animationEasing": "cubicOut",
+    "animationDelay": 0,
+    "animationDurationUpdate": 300,
+    "animationEasingUpdate": "cubicOut",
+    "animationDelayUpdate": 0,
+    "aria": {
+        "enabled": false
+    },
+    "color": [
+        "#5470c6",
+        "#91cc75",
+        "#fac858",
+        "#ee6666",
+        "#73c0de",
+        "#3ba272",
+        "#fc8452",
+        "#9a60b4",
+        "#ea7ccc"
+    ],
+    "series": [
+        {
+            "type": "graph",
+            "layout": "force",
+            "symbolSize": 10,
+            "circular": {
+                "rotateLabel": true
+            },
+            "force": {
+                "repulsion": 400,
+                "gravity": 0.2,
+                "edgeLength": 80,
+                "friction": 0.6,
+                "layoutAnimation": true
+            },
+            "label": {
+                "show": true,
+                "position": "right",
+                "margin": 8,
+                "formatter": "{b}"
+            },
+            "lineStyle": {
+                "show": true,
+                "width": 1,
+                "opacity": 1,
+                "curveness": 0.2,
+                "type": "solid"
+            },
+            "roam": true,
+            "draggable": false,
+            "focusNodeAdjacency": true,
+            "data": [
+                {
+                    "name": "shio",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>shio</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shio<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: ['shioFunc']\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "shioStrong",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>shioStrong</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioStrong<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: ['shioStrongFunc']\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "shioWeak",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>shioWeak</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioWeak<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: ['shioWeakFunc']\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "interDayReturn",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>interDayReturn</b><br/>\n            \u7c7b\u522b: stock<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_interDayReturn<br/>\n            \u6570\u636e\u8868: 1\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "shio_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>shio_avg20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shio_avg20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "shio_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>shio_std20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shio_std20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "shioStrong_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>shioStrong_avg20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioStrong_avg20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "shioStrong_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>shioStrong_std20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioStrong_std20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "shioWeak_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>shioWeak_avg20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioWeak_avg20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "shioWeak_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>shioWeak_std20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioWeak_std20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "interDayReturn_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>interDayReturn_avg20</b><br/>\n            \u7c7b\u522b: stock<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_interDayReturn_avg20<br/>\n            \u6570\u636e\u8868: 1\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "interDayReturn_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n            <b>interDayReturn_std20</b><br/>\n            \u7c7b\u522b: stock<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_interDayReturn_std20<br/>\n            \u6570\u636e\u8868: 1\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                }
+            ],
+            "categories": [
+                {
+                    "name": "\u65e5\u9891\u56e0\u5b50",
+                    "itemStyle": {
+                        "color": "#5470c6"
+                    }
+                },
+                {
+                    "name": "\u5206\u949f\u9891\u56e0\u5b50",
+                    "itemStyle": {
+                        "color": "#91cc75"
+                    }
+                }
+            ],
+            "edgeLabel": {
+                "show": false,
+                "margin": 8
+            },
+            "edgeSymbol": [
+                null,
+                null
+            ],
+            "edgeSymbolSize": 10,
+            "links": [
+                {
+                    "source": "shio",
+                    "target": "shio_avg20",
+                    "lineStyle": {
+                        "color": "#5470c6",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "shio",
+                    "target": "shio_std20",
+                    "lineStyle": {
+                        "color": "#5470c6",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "shioStrong",
+                    "target": "shioStrong_avg20",
+                    "lineStyle": {
+                        "color": "#5470c6",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "shioStrong",
+                    "target": "shioStrong_std20",
+                    "lineStyle": {
+                        "color": "#5470c6",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "shioWeak",
+                    "target": "shioWeak_avg20",
+                    "lineStyle": {
+                        "color": "#5470c6",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "shioWeak",
+                    "target": "shioWeak_std20",
+                    "lineStyle": {
+                        "color": "#5470c6",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturn",
+                    "target": "interDayReturn_avg20",
+                    "lineStyle": {
+                        "color": "#5470c6",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturn",
+                    "target": "interDayReturn_std20",
+                    "lineStyle": {
+                        "color": "#5470c6",
+                        "width": 2
+                    }
+                }
+            ]
+        }
+    ],
+    "legend": [
+        {
+            "data": [
+                "\u65e5\u9891\u56e0\u5b50",
+                "\u5206\u949f\u9891\u56e0\u5b50"
+            ],
+            "selected": {},
+            "show": true,
+            "left": "2%",
+            "top": "10%",
+            "orient": "vertical",
+            "padding": 5,
+            "itemGap": 10,
+            "itemWidth": 25,
+            "itemHeight": 14,
+            "backgroundColor": "transparent",
+            "borderColor": "#ccc",
+            "borderWidth": 1,
+            "borderRadius": 0,
+            "pageButtonItemGap": 5,
+            "pageButtonPosition": "end",
+            "pageFormatter": "{current}/{total}",
+            "pageIconColor": "#2f4554",
+            "pageIconInactiveColor": "#aaa",
+            "pageIconSize": 15,
+            "animationDurationUpdate": 800,
+            "selector": false,
+            "selectorPosition": "auto",
+            "selectorItemGap": 7,
+            "selectorButtonGap": 10
+        }
+    ],
+    "tooltip": {
+        "show": true,
+        "trigger": "item",
+        "triggerOn": "mousemove|click",
+        "axisPointer": {
+            "type": "line"
+        },
+        "showContent": true,
+        "alwaysShowContent": false,
+        "showDelay": 0,
+        "hideDelay": 100,
+        "enterable": false,
+        "confine": false,
+        "appendToBody": false,
+        "transitionDuration": 0.4,
+        "textStyle": {
+            "fontSize": 14
+        },
+        "borderWidth": 0,
+        "padding": 5,
+        "order": "seriesAsc"
+    },
+    "title": [
+        {
+            "show": true,
+            "text": "\u7b80\u5316\u56e0\u5b50\u4f9d\u8d56\u56fe",
+            "target": "blank",
+            "subtarget": "blank",
+            "left": "center",
+            "padding": 5,
+            "itemGap": 10,
+            "textAlign": "auto",
+            "textVerticalAlign": "auto",
+            "triggerEvent": false
+        }
+    ]
+};
+        chart_02c1ac7e870942028bc486c34b90a437.setOption(option_02c1ac7e870942028bc486c34b90a437);
+    </script>
+</body>
+</html>
