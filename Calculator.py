@@ -673,7 +673,7 @@ class FactorCalculator:
         self.processing(start_date, end_date, self.dataPath_MM_dict)
         self.processing(start_date, end_date, self.dataPath_DD_dict)
         self.dolphindb_cmd+=self.update_data() # 上传至数据库的SQL语句
-        # self.session.run(self.dolphindb_cmd)    # 运行
+        self.session.run(self.dolphindb_cmd)    # 运行
 
 
 if __name__ == "__main__":
@@ -697,6 +697,6 @@ if __name__ == "__main__":
                          class_cfg=class_cfg)
     # F.init_database(True,True,True,True)
     F.set_factorList(factor_list=list(factor_cfg.keys()))
-    F.run(start_date="20200101",end_date="20250430")
+    F.run(start_date="20200101",end_date="20250930")
     print(F.dolphindb_cmd)
 

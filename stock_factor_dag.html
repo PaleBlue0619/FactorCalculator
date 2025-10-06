@@ -7,11 +7,11 @@
 
 </head>
 <body >
-    <div id="acb0cbb9633942ad98cc08857991c982" class="chart-container" style="width:1400px; height:800px; "></div>
+    <div id="2a28c2dc0f6f4d6b90d8ea67f9158e1d" class="chart-container" style="width:1400px; height:800px; "></div>
     <script>
-        var chart_acb0cbb9633942ad98cc08857991c982 = echarts.init(
-            document.getElementById('acb0cbb9633942ad98cc08857991c982'), 'white', {renderer: 'canvas'});
-        var option_acb0cbb9633942ad98cc08857991c982 = {
+        var chart_2a28c2dc0f6f4d6b90d8ea67f9158e1d = echarts.init(
+            document.getElementById('2a28c2dc0f6f4d6b90d8ea67f9158e1d'), 'white', {renderer: 'canvas'});
+        var option_2a28c2dc0f6f4d6b90d8ea67f9158e1d = {
     "animation": true,
     "animationThreshold": 2000,
     "animationDuration": 1000,
@@ -73,6 +73,18 @@
                     "category": 0
                 },
                 {
+                    "name": "intraDayReturn",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayTurnoverRateDiff",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
                     "name": "interDayReturn_avg20",
                     "symbolSize": 40,
                     "symbol": "circle",
@@ -83,13 +95,91 @@
                     "symbolSize": 40,
                     "symbol": "circle",
                     "category": 0
+                },
+                {
+                    "name": "intraDayReturn_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayReturn_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayTurnoverRateDiff_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayTurnoverRateDiff_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "interDayReturnReverse",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayReturnReverse",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayTurnoverRateDiffReverse",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "interDayReturnReverse_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "interDayReturnReverse_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayReturnReverse_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayReturnReverse_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayTurnoverRateDiffReverse_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
+                },
+                {
+                    "name": "intraDayTurnoverRateDiffReverse_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0
                 }
             ],
             "categories": [
                 {
                     "name": "\u65e5\u9891\u56e0\u5b50",
                     "itemStyle": {
-                        "color": "#5470c6"
+                        "color": "#5292C5"
                     }
                 }
             ],
@@ -107,7 +197,7 @@
                     "source": "interDayReturn",
                     "target": "interDayReturn_avg20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
                         "width": 2
                     }
                 },
@@ -115,7 +205,135 @@
                     "source": "interDayReturn",
                     "target": "interDayReturn_std20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturn",
+                    "target": "intraDayReturn_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturn",
+                    "target": "intraDayReturn_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiff",
+                    "target": "intraDayTurnoverRateDiff_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiff",
+                    "target": "intraDayTurnoverRateDiff_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturn_avg20",
+                    "target": "interDayReturnReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturn_std20",
+                    "target": "interDayReturnReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturn_avg20",
+                    "target": "intraDayReturnReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturn_std20",
+                    "target": "intraDayReturnReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiff_avg20",
+                    "target": "intraDayTurnoverRateDiffReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiff_std20",
+                    "target": "intraDayTurnoverRateDiffReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturnReverse",
+                    "target": "interDayReturnReverse_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturnReverse",
+                    "target": "interDayReturnReverse_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturnReverse",
+                    "target": "intraDayReturnReverse_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturnReverse",
+                    "target": "intraDayReturnReverse_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiffReverse",
+                    "target": "intraDayTurnoverRateDiffReverse_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiffReverse",
+                    "target": "intraDayTurnoverRateDiffReverse_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
                         "width": 2
                     }
                 }
@@ -187,7 +405,7 @@
         }
     ]
 };
-        chart_acb0cbb9633942ad98cc08857991c982.setOption(option_acb0cbb9633942ad98cc08857991c982);
+        chart_2a28c2dc0f6f4d6b90d8ea67f9158e1d.setOption(option_2a28c2dc0f6f4d6b90d8ea67f9158e1d);
     </script>
 </body>
 </html>

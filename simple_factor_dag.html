@@ -7,11 +7,11 @@
 
 </head>
 <body >
-    <div id="02c1ac7e870942028bc486c34b90a437" class="chart-container" style="width:1600px; height:900px; "></div>
+    <div id="ac00f867c0e84ad68d2288c29f24c2ac" class="chart-container" style="width:1600px; height:900px; "></div>
     <script>
-        var chart_02c1ac7e870942028bc486c34b90a437 = echarts.init(
-            document.getElementById('02c1ac7e870942028bc486c34b90a437'), 'white', {renderer: 'canvas'});
-        var option_02c1ac7e870942028bc486c34b90a437 = {
+        var chart_ac00f867c0e84ad68d2288c29f24c2ac = echarts.init(
+            document.getElementById('ac00f867c0e84ad68d2288c29f24c2ac'), 'white', {renderer: 'canvas'});
+        var option_ac00f867c0e84ad68d2288c29f24c2ac = {
     "animation": true,
     "animationThreshold": 2000,
     "animationDuration": 1000,
@@ -86,7 +86,7 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>shio</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shio<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: ['shioFunc']\n            ",
+                        "formatter": "\n                <b>shio</b><br/>\n                \u7c7b\u522b: shio<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_shio<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: ['shioFunc']\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -115,7 +115,7 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>shioStrong</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioStrong<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: ['shioStrongFunc']\n            ",
+                        "formatter": "\n                <b>shioStrong</b><br/>\n                \u7c7b\u522b: shio<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_shioStrong<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: ['shioStrongFunc']\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -144,7 +144,65 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>shioWeak</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioWeak<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: ['shioWeakFunc']\n            ",
+                        "formatter": "\n                <b>shioWeak</b><br/>\n                \u7c7b\u522b: shio<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_shioWeak<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: ['shioWeakFunc']\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "vaR240_m120",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 1,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>vaR240_m120</b><br/>\n                \u7c7b\u522b: vaR<br/>\n                \u9891\u7387: minute<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_vaR240_m120<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "cvaR240_m120",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 1,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>cvaR240_m120</b><br/>\n                \u7c7b\u522b: vaR<br/>\n                \u9891\u7387: minute<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_cvaR240_m120<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -173,7 +231,65 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>interDayReturn</b><br/>\n            \u7c7b\u522b: stock<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_interDayReturn<br/>\n            \u6570\u636e\u8868: 1\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "formatter": "\n                <b>interDayReturn</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_interDayReturn<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayReturn",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayReturn</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayReturn<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayTurnoverRateDiff",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayTurnoverRateDiff</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayTurnoverRateDiff<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -202,7 +318,7 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>shio_avg20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shio_avg20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "formatter": "\n                <b>shio_avg20</b><br/>\n                \u7c7b\u522b: shio<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_shio_avg20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -231,7 +347,7 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>shio_std20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shio_std20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "formatter": "\n                <b>shio_std20</b><br/>\n                \u7c7b\u522b: shio<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_shio_std20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -260,7 +376,7 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>shioStrong_avg20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioStrong_avg20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "formatter": "\n                <b>shioStrong_avg20</b><br/>\n                \u7c7b\u522b: shio<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_shioStrong_avg20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -289,7 +405,7 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>shioStrong_std20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioStrong_std20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "formatter": "\n                <b>shioStrong_std20</b><br/>\n                \u7c7b\u522b: shio<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_shioStrong_std20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -318,7 +434,7 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>shioWeak_avg20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioWeak_avg20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "formatter": "\n                <b>shioWeak_avg20</b><br/>\n                \u7c7b\u522b: shio<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_shioWeak_avg20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -347,7 +463,7 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>shioWeak_std20</b><br/>\n            \u7c7b\u522b: shio<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_shioWeak_std20<br/>\n            \u6570\u636e\u8868: 2\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "formatter": "\n                <b>shioWeak_std20</b><br/>\n                \u7c7b\u522b: shio<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_shioWeak_std20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -376,7 +492,7 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>interDayReturn_avg20</b><br/>\n            \u7c7b\u522b: stock<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_interDayReturn_avg20<br/>\n            \u6570\u636e\u8868: 1\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "formatter": "\n                <b>interDayReturn_avg20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_interDayReturn_avg20<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -405,7 +521,384 @@
                         "confine": false,
                         "appendToBody": false,
                         "transitionDuration": 0.4,
-                        "formatter": "\n            <b>interDayReturn_std20</b><br/>\n            \u7c7b\u522b: stock<br/>\n            \u9891\u7387: day<br/>\n            \u8ba1\u7b97\u51fd\u6570: get_interDayReturn_std20<br/>\n            \u6570\u636e\u8868: 1\u4e2a<br/>\n            \u4e2d\u95f4\u51fd\u6570: \u65e0\n            ",
+                        "formatter": "\n                <b>interDayReturn_std20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_interDayReturn_std20<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayReturn_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayReturn_avg20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayReturn_avg20<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayReturn_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayReturn_std20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayReturn_std20<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayTurnoverRateDiff_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayTurnoverRateDiff_avg20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayTurnoverRateDiff_avg20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayTurnoverRateDiff_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayTurnoverRateDiff_std20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayReturn_std20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "interDayReturnReverse",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>interDayReturnReverse</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_interDayReturnReverse<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayReturnReverse",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayReturnReverse</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayReturnReverse<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayTurnoverRateDiffReverse",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayTurnoverRateDiffReverse</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayReturnReverse<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "interDayReturnReverse_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>interDayReturnReverse_avg20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_interDayReturnReverse_avg20<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "interDayReturnReverse_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>interDayReturnReverse_std20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_interDayReturnReverse_std20<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayReturnReverse_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayReturnReverse_avg20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayReturnReverse_avg20<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayReturnReverse_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayReturnReverse_std20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayReturnReverse_std20<br/>\n                \u6570\u636e\u8868: 1\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayTurnoverRateDiffReverse_avg20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayTurnoverRateDiffReverse_avg20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayTurnoverRateDiffReverse_avg20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0,
+                        "padding": 5,
+                        "order": "seriesAsc"
+                    }
+                },
+                {
+                    "name": "intraDayTurnoverRateDiffReverse_std20",
+                    "symbolSize": 40,
+                    "symbol": "circle",
+                    "category": 0,
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "showContent": true,
+                        "alwaysShowContent": false,
+                        "showDelay": 0,
+                        "hideDelay": 100,
+                        "enterable": false,
+                        "confine": false,
+                        "appendToBody": false,
+                        "transitionDuration": 0.4,
+                        "formatter": "\n                <b>intraDayTurnoverRateDiffReverse_std20</b><br/>\n                \u7c7b\u522b: stock<br/>\n                \u9891\u7387: day<br/>\n                \u8ba1\u7b97\u51fd\u6570: get_intraDayTurnoverRateDiffReverse_std20<br/>\n                \u6570\u636e\u8868: 2\u4e2a<br/>\n                \u4e2d\u95f4\u51fd\u6570: \u65e0\n                ",
                         "textStyle": {
                             "fontSize": 14
                         },
@@ -419,13 +912,13 @@
                 {
                     "name": "\u65e5\u9891\u56e0\u5b50",
                     "itemStyle": {
-                        "color": "#5470c6"
+                        "color": "#5292C5"
                     }
                 },
                 {
                     "name": "\u5206\u949f\u9891\u56e0\u5b50",
                     "itemStyle": {
-                        "color": "#91cc75"
+                        "color": "#DEA3BC"
                     }
                 }
             ],
@@ -443,7 +936,7 @@
                     "source": "shio",
                     "target": "shio_avg20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
                         "width": 2
                     }
                 },
@@ -451,7 +944,7 @@
                     "source": "shio",
                     "target": "shio_std20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
                         "width": 2
                     }
                 },
@@ -459,7 +952,7 @@
                     "source": "shioStrong",
                     "target": "shioStrong_avg20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
                         "width": 2
                     }
                 },
@@ -467,7 +960,7 @@
                     "source": "shioStrong",
                     "target": "shioStrong_std20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
                         "width": 2
                     }
                 },
@@ -475,7 +968,7 @@
                     "source": "shioWeak",
                     "target": "shioWeak_avg20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
                         "width": 2
                     }
                 },
@@ -483,7 +976,7 @@
                     "source": "shioWeak",
                     "target": "shioWeak_std20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
                         "width": 2
                     }
                 },
@@ -491,7 +984,7 @@
                     "source": "interDayReturn",
                     "target": "interDayReturn_avg20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
                         "width": 2
                     }
                 },
@@ -499,7 +992,135 @@
                     "source": "interDayReturn",
                     "target": "interDayReturn_std20",
                     "lineStyle": {
-                        "color": "#5470c6",
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturn",
+                    "target": "intraDayReturn_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturn",
+                    "target": "intraDayReturn_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiff",
+                    "target": "intraDayTurnoverRateDiff_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiff",
+                    "target": "intraDayTurnoverRateDiff_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturn_avg20",
+                    "target": "interDayReturnReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturn_std20",
+                    "target": "interDayReturnReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturn_avg20",
+                    "target": "intraDayReturnReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturn_std20",
+                    "target": "intraDayReturnReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiff_avg20",
+                    "target": "intraDayTurnoverRateDiffReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiff_std20",
+                    "target": "intraDayTurnoverRateDiffReverse",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturnReverse",
+                    "target": "interDayReturnReverse_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "interDayReturnReverse",
+                    "target": "interDayReturnReverse_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturnReverse",
+                    "target": "intraDayReturnReverse_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayReturnReverse",
+                    "target": "intraDayReturnReverse_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiffReverse",
+                    "target": "intraDayTurnoverRateDiffReverse_avg20",
+                    "lineStyle": {
+                        "color": "#5292C5",
+                        "width": 2
+                    }
+                },
+                {
+                    "source": "intraDayTurnoverRateDiffReverse",
+                    "target": "intraDayTurnoverRateDiffReverse_std20",
+                    "lineStyle": {
+                        "color": "#5292C5",
                         "width": 2
                     }
                 }
@@ -575,7 +1196,7 @@
         }
     ]
 };
-        chart_02c1ac7e870942028bc486c34b90a437.setOption(option_02c1ac7e870942028bc486c34b90a437);
+        chart_ac00f867c0e84ad68d2288c29f24c2ac.setOption(option_ac00f867c0e84ad68d2288c29f24c2ac);
     </script>
 </body>
 </html>
