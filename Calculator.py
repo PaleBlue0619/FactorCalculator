@@ -33,9 +33,10 @@ def trans_time(start_date: str, end_date:str):
     end_date = pd.Timestamp(end_date).strftime("%Y.%m.%d")
     return start_date, end_date
 
+
 def get_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[str]:
     """
-    安全版本：处理循环依赖
+    安全版本：处理循环依赖，收集所有相关节点
     """
     G = nx.DiGraph()
 
@@ -47,24 +48,178 @@ def get_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[st
         deps = cfg['dependency']['factor'] or []
         deps = [deps] if isinstance(deps, str) else deps
         for dep in deps:
-            # 确保依赖的节点也在图中
-            if dep not in G:
-                G.add_node(dep)
-            G.add_edge(dep, factor)
+            if dep in factor_cfg:  # 只添加存在的依赖
+                G.add_edge(dep, factor)
 
-    # 收集所有相关节点
-    all_nodes = set(factor_list)
+    # 收集所有相关节点（包括依赖链上的所有祖先）
+    all_nodes = set()
     for factor in factor_list:
-        # 确保因子在图中
         if factor in G:
+            # 添加当前因子及其所有祖先
+            all_nodes.add(factor)
             all_nodes.update(nx.ancestors(G, factor))
 
     # 检查循环依赖
     try:
-        return list(nx.topological_sort(G.subgraph(all_nodes)))
+        sorted_factors = list(nx.topological_sort(G.subgraph(all_nodes)))
+        # 只返回在原始factor_list中或作为依赖的因子
+        return [f for f in sorted_factors if f in all_nodes]
     except nx.NetworkXUnfeasible:
-        # 有循环依赖时，返回按字母排序
+        print("警告: 存在循环依赖，返回按字母排序")
         return sorted(all_nodes)
+
+
+def sort_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[str]:
+    """
+    改进的依赖关系排序
+    """
+    # 使用完整的依赖分析函数
+    return get_factor_byDependency(factor_cfg, factor_list)
+
+
+class FactorCalculator:
+    # ... 其他代码保持不变 ...
+
+    def processing(self, start_date: str, end_date: str, dataPathDict: Dict):
+        start_date, end_date = trans_time(start_date, end_date)
+
+        # 首先收集所有需要处理的因子（包括依赖）
+        all_factors_to_process = []
+        for factorList in dataPathDict.values():
+            # 对每个因子列表进行完整的依赖分析
+            sorted_factors = self.sort_factorsGivenDependency(factorList)
+            all_factors_to_process.extend(sorted_factors)
+
+        # 去重并保持顺序
+        seen = set()
+        unique_factors = []
+        for factor in all_factors_to_process:
+            if factor not in seen:
+                seen.add(factor)
+                unique_factors.append(factor)
+
+        # 按dataPath分组处理
+        factor_by_dataPath = {}
+        for factor in unique_factors:
+            dataPath_key = "$".join(self.factor_cfg[factor]["dataPath"])
+            if dataPath_key not in factor_by_dataPath:
+                factor_by_dataPath[dataPath_key] = []
+            factor_by_dataPath[dataPath_key].append(factor)
+
+        # 处理每个dataPath组
+        for dataPath_key, factorList in factor_by_dataPath.items():
+            dataPath = dataPath_key.split("$")
+
+            # 准备特征字典
+            featureDict = self.get_featuresGivenFactor(factorList)
+
+            # 获取涉及的class列表
+            classList = list(set([self.factor_cfg[factor]["class"] for factor in factorList]))
+
+            # 数据准备（left join等）
+            if len(dataPath) == 1:
+                self.dolphindb_cmd += self.no_leftJoin(
+                    dataPath=dataPath[0],
+                    indicator_dict=featureDict[dataPath[0]],
+                    start_date=start_date,
+                    end_date=end_date
+                )
+            elif len(dataPath) >= 2:
+                self.dolphindb_cmd += self.first_leftJoin(
+                    lpath=dataPath[0], rpath=dataPath[1],
+                    lindicator_dict=featureDict[dataPath[0]],
+                    rindicator_dict=featureDict[dataPath[1]],
+                    start_date=start_date,
+                    end_date=end_date
+                )
+                for i in range(2, len(dataPath)):
+                    self.dolphindb_cmd += self.after_leftJoin(
+                        rpath=dataPath[i],
+                        rindicator_dict=featureDict[dataPath[i]],
+                        start_date=start_date,
+                        end_date=end_date
+                    )
+
+            # 执行classFunc（每个class只执行一次）
+            executed_classes = set()
+            for factorName in factorList:
+                class_ = self.factor_cfg[factorName]["class"]
+                if class_ in executed_classes:
+                    continue
+                executed_classes.add(class_)
+
+                if class_ in self.class_cfg and self.class_cfg[class_]:
+                    for funcName in self.class_cfg[class_]:
+                        res = self.func_map[funcName](self)
+                        if isinstance(res, dict):
+                            self.dolphindb_cmd += res["cmd"]
+                        else:
+                            self.dolphindb_cmd += res
+
+            # 执行因子计算（确保依赖顺序）
+            for factorName in factorList:
+                # 执行midFunc
+                midFuncList = self.factor_cfg[factorName]["dependency"]["midFunc"]
+                if midFuncList:
+                    for midFunc in midFuncList:
+                        res = self.func_map[midFunc](self)
+                        if isinstance(res, dict):
+                            res = res["cmd"]
+                        self.dolphindb_cmd += res
+
+                # 执行calFunc
+                calFuncName = self.factor_cfg[factorName]["calFunc"]
+                paramsDict = self.factor_cfg[factorName]
+                calFunc = self.func_map[calFuncName]
+                nParams = calFunc.__code__.co_argcount
+                if nParams == 3:
+                    self.dolphindb_cmd += calFunc(self, factorName, paramsDict)
+                else:
+                    self.dolphindb_cmd += calFunc(self, factorName)
+
+    def run(self, start_date: str, end_date: str,
+            dropDayDB: bool = False,
+            dropDayTB: bool = False,
+            dropMinDB: bool = False,
+            dropMinTB: bool = False):
+        """主函数"""
+        # Step1. 初始化
+        self.init_def()
+        self.init_database(dropDayDB, dropDayTB, dropMinDB, dropMinTB)
+        self.init_check()
+
+        # Step2. 重新组织数据处理顺序
+        # 首先获取所有需要计算的因子（包括依赖）
+        all_factors = self.sort_factorsGivenDependency(self.factor_need)
+
+        # 按数据类型分组
+        factor_groups = {
+            "MD": [],
+            "MM": [],
+            "DD": []
+        }
+
+        for factor in all_factors:
+            if factor in self.factor_MD_list:
+                factor_groups["MD"].append(factor)
+            elif factor in self.factor_MM_list:
+                factor_groups["MM"].append(factor)
+            elif factor in self.factor_DD_list:
+                factor_groups["DD"].append(factor)
+
+        # 按dataPath组织
+        dataPath_groups = {}
+        for group_name, factors in factor_groups.items():
+            for factor in factors:
+                dataPath_key = "$".join(self.factor_cfg[factor]["dataPath"])
+                if dataPath_key not in dataPath_groups:
+                    dataPath_groups[dataPath_key] = []
+                dataPath_groups[dataPath_key].append(factor)
+
+        # 运行处理
+        self.processing(start_date, end_date, dataPath_groups)
+        self.dolphindb_cmd += self.update_data()
+        self.session.run(self.dolphindb_cmd)
 
 def get_funcMapFromImport(*modules):
     """从指定模块收集函数"""
@@ -76,15 +231,13 @@ def get_funcMapFromImport(*modules):
                 function_map[name] = obj
     return function_map
 
-
 def complete_factor_cfg(factor_cfg: Dict) -> Dict:
     """
-    使用DFS方式为每个因子补全dataPath信息
-    收集所有底层依赖的dataPath并合并到当前因子的dataPath中
+    增强版：同时补全dataPath和indicator
     """
     factor_map = {name: cfg.copy() for name, cfg in factor_cfg.items()}
 
-    # 构建依赖关系
+    # 构建依赖关系（保持不变）
     dependency_map = {}
     for factor_name, cfg in factor_map.items():
         deps = cfg['dependency']['factor']
@@ -94,77 +247,64 @@ def complete_factor_cfg(factor_cfg: Dict) -> Dict:
             deps = [deps]
         dependency_map[factor_name] = deps
 
-    # 缓存已计算的结果，避免重复计算
+    # 缓存已计算的结果
     data_path_cache = {}
+    indicator_cache = {}
 
-    def get_all_data_paths(factor_name, visited=None):
+    def get_all_dependencies(factor_name, visited=None):
         if visited is None:
             visited = set()
 
-        # 检查循环依赖
         if factor_name in visited:
             raise ValueError(f"检测到循环依赖: {' -> '.join(visited)} -> {factor_name}")
 
         # 如果已经缓存，直接返回
-        if factor_name in data_path_cache:
-            return data_path_cache[factor_name]
+        if factor_name in data_path_cache and factor_name in indicator_cache:
+            return data_path_cache[factor_name], indicator_cache[factor_name]
 
         visited.add(factor_name)
         cfg = factor_map[factor_name]
 
-        # 使用有序列表来保持顺序
+        # 初始化结果
         all_data_paths = []
+        all_indicators = []
 
-        # 先添加当前因子的dataPath（保持原有顺序）
+        # 添加当前因子的dataPath和indicator
         if cfg['dataPath']:
-            # 去重添加当前因子的dataPath
             for path in cfg['dataPath']:
                 if path not in all_data_paths:
                     all_data_paths.append(path)
 
+        if cfg['indicator']:
+            for indicator in cfg['indicator']:
+                if indicator not in all_indicators:
+                    all_indicators.append(indicator)
+
         # 递归处理所有依赖
         for dep in dependency_map[factor_name]:
-            dep_paths = get_all_data_paths(dep, visited.copy())
-            # 添加依赖的dataPath，保持顺序且去重
+            dep_paths, dep_indicators = get_all_dependencies(dep, visited.copy())
+
+            # 合并依赖的dataPath
             for path in dep_paths:
                 if path not in all_data_paths:
                     all_data_paths.append(path)
 
-        data_path_cache[factor_name] = all_data_paths
-        return all_data_paths
+            # 合并依赖的indicator
+            for indicator in dep_indicators:
+                if indicator not in all_indicators:
+                    all_indicators.append(indicator)
 
-    # 为每个因子计算完整的dataPath
+        data_path_cache[factor_name] = all_data_paths
+        indicator_cache[factor_name] = all_indicators
+        return all_data_paths, all_indicators
+
+    # 为每个因子计算完整的dataPath和indicator
     for factor_name in factor_map:
         if factor_name not in data_path_cache:
-            factor_map[factor_name]['dataPath'] = get_all_data_paths(factor_name)
-
+            data_paths, indicators = get_all_dependencies(factor_name)
+            factor_map[factor_name]['dataPath'] = data_paths
+            factor_map[factor_name]['indicator'] = indicators
     return factor_map
-
-def sort_factor_byDependency(factor_cfg: Dict, factor_list: List[str]) -> List[str]:
-    """
-    简单的依赖关系排序
-    """
-    G = nx.DiGraph()
-    G.add_nodes_from(factor_list)
-
-    # 构建依赖图
-    for factor in factor_list:
-        if factor in factor_cfg:
-            deps = factor_cfg[factor]['dependency']['factor']
-            if deps is None:
-                continue
-            if isinstance(deps, str):
-                deps = [deps]
-            for dep in deps:
-                if dep in factor_list:
-                    G.add_edge(dep, factor)
-
-    try:
-        return list(nx.topological_sort(G))
-    except nx.NetworkXUnfeasible:
-        # 循环依赖时返回原始列表
-        print("警告: 存在循环依赖，返回原始顺序")
-        return factor_list
 
 
 class FactorCalculator:
@@ -419,28 +559,43 @@ class FactorCalculator:
         leftIdxCols = array(STRING,0);
         rightIdxCols = array(STRING,0);
         matchingCols = array(STRING,0);
+        addSelectCols = array(STRING,0);  // 判断若存在NA的时,左表那些index需要加入selectCols
+        addNameCols = array(STRING,0); // 若需要将左表index加入selectCols时的标准名称
         if (ldateCol!="NA" and rdateCol!="NA"){{
             leftIdxCols.append!(ldateCol);
             rightIdxCols.append!(rdateCol);
-            matchingCols.append!("TradeDate");
+            matchingCols.append!("{self.dateCol}");
         }};
         if (ltimeCol!="NA" and rtimeCol!="NA"){{
             leftIdxCols.append!(ltimeCol);
             rightIdxCols.append!(rtimeCol);
-            matchingCols.append!("TradeTime");
+            matchingCols.append!("{self.timeCol}");
         }};
         if (lsymbolCol!="NA" and rsymbolCol!="NA"){{
             leftIdxCols.append!(lsymbolCol);
             rightIdxCols.append!(rsymbolCol);
-            matchingCols.append!("symbol");
+            matchingCols.append!("{self.symbolCol}");
         }};
+        if (ldateCol!="NA" and rdateCol=="NA"){{
+            addSelectCols.append!(ldateCol);
+            addNameCols.append!("{self.dateCol}");
+        }}
+        if (ltimeCol!="NA" and rtimeCol=="NA"){{
+            addSelectCols.append!(ltimeCol);
+            addNameCols.append!("{self.timeCol}");
+        }}
+        if (lsymbolCol!="NA" and rsymbolCol=="NA"){{
+            addSelectCols.append!(lsymbolCol);
+            addNameCols.append!("{self.symbolCol}")
+        }}
+        
         lindicator_dict = {lindicator_dict};
         rindicator_dict = {rindicator_dict};
-        lnames = matchingCols.copy().append!(string(lindicator_dict.keys()));
-        lselects = leftIdxCols.copy().append!(string(lindicator_dict.values()));
+        lnames = matchingCols.copy().append!(string(lindicator_dict.keys())).append!(addNameCols);
+        lselects = leftIdxCols.copy().append!(string(lindicator_dict.values())).append!(addSelectCols);
         rnames = matchingCols.copy().append!(string(rindicator_dict.keys()));
         rselects = rightIdxCols.copy().append!(string(rindicator_dict.values()));
-
+        
         if (ldateCol!="NA"){{
             leftTable = <select _$$lselects as _$$lnames from loadTable(ldbName, ltbName) where _$ldateCol between start_date and end_date>.eval()              
         }}else{{
@@ -469,27 +624,41 @@ class FactorCalculator:
         end_date = {end_date};
         rdbName = "{rcfg["dataPath"][0]}"
         rtbName = "{rcfg["dataPath"][1]}"
-        rsymbolCol = "{rcfg["symbolCol"]};
-        rdateCol = "{rcfg["dateCol"]};
-        rtimeCol = "{rcfg["timeCol"]};
+        rsymbolCol = "{rcfg["symbolCol"]}";
+        rdateCol = "{rcfg["dateCol"]}";
+        rtimeCol = "{rcfg["timeCol"]}";
         rightIdxCols = array(STRING,0);
-        matchingCols = array(STRING,0)
+        matchingCols = array(STRING,0);
+        addSelectCols = array(STRING,0);  // 判断若存在NA的时,左表那些index需要加入selectCols
+        addNameCols = array(STRING,0); // 若需要将左表index加入selectCols时的标准名称
         rindicator_dict = {rindicator_dict}
         // 这里的leftObj都是第一次Left semi join中的左表
         if (ldateCol!="NA" and rdateCol!="NA"){{  
             rightIdxCols.append!(rdateCol);
-            matchingCols.append!("TradeDate");
+            matchingCols.append!("{self.dateCol}");
         }};
         if (ltimeCol!="NA" and rtimeCol!="NA"){{
             rightIdxCols.append!(rtimeCol);
-            matchingCols.append!("TradeTime");
+            matchingCols.append!("{self.timeCol}");
         }};
         if (lsymbolCol!="NA" and rsymbolCol!="NA"){{
             rightIdxCols.append!(rsymbolCol);
-            matchingCols.append!("symbol");
+            matchingCols.append!("{self.symbolCol}");
         }};
-        rnames = matchingCols.copy().append!(string(rindicator_dict.keys()))
-        rselects = rightIdxCols.copy().append!(string(rindicator_dict.values()))
+          if (ldateCol!="NA" and rdateCol=="NA"){{
+            addSelectCols.append!(ldateCol);
+            addNameCols.append!("{self.dateCol}");
+        }}
+        if (ltimeCol!="NA" and rtimeCol=="NA"){{
+            addSelectCols.append!(ltimeCol);
+            addNameCols.append!("{self.timeCol}");
+        }}
+        if (lsymbolCol!="NA" and rsymbolCol=="NA"){{
+            addSelectCols.append!(lsymbolCol);
+            addNameCols.append!("{self.symbolCol}")
+        }}
+        rnames = matchingCols.copy().append!(string(rindicator_dict.keys())).append!(addNameCols)
+        rselects = rightIdxCols.copy().append!(string(rindicator_dict.values())).append!(addSelectCols)
         
         if (rdateCol!="NA"){{
             rightTable = <select _$$rselects as _$$rnames from loadTable(rdbName, rtbName) where _$rdateCol between start_date and end_date>.eval()              
@@ -546,15 +715,23 @@ class FactorCalculator:
         给定因子list, 自动返回一个Dict<dataPath: feature_Dict>
         注: init_check后补全相关配置+规范相关特征名称后再运行
         """
+        # 获取完整的依赖链上的所有因子，确保不遗漏任何依赖
+        all_related_factors = self.sort_factorsGivenDependency(factor_list)
+
         resDict = {}
-        for factor in factor_list:
+        for factor in all_related_factors:
             dataPathList = self.factor_cfg[factor]["dataPath"]
             indicatorList = self.factor_cfg[factor]["indicator"]
             for dataPath, indicators in zip(dataPathList, indicatorList):
                 if dataPath not in resDict:
-                    resDict[dataPath] = {ind: self.indicator_cfg[dataPath]["indicator"][ind] for ind in indicators}
-                else:
-                    resDict[dataPath].update({ind: self.indicator_cfg[dataPath]["indicator"][ind] for ind in indicators})
+                    resDict[dataPath] = {}
+                # 只添加当前dataPath中实际存在的指标
+                for ind in indicators:
+                    if ind in self.indicator_cfg[dataPath]["indicator"]:
+                        resDict[dataPath][ind] = self.indicator_cfg[dataPath]["indicator"][ind]
+                    else:
+                        print(f"警告: 指标 {ind} 在 dataPath {dataPath} 中不存在")
+
         return resDict
 
     def sort_factorsGivenDependency(self, factor_list: List) -> List:
@@ -590,7 +767,7 @@ class FactorCalculator:
                 if len(dataPath) >= 3:  # 说明从左到右依次执行多次semi-leftJoin
                     for i in range(2, len(dataPath)):
                         self.dolphindb_cmd += self.after_leftJoin(rpath=dataPath[i],
-                                                                  rindicator_cfg=featureDict[dataPath[i]],
+                                                                  rindicator_dict=featureDict[dataPath[i]],
                                                                   start_date=start_date,
                                                                   end_date=end_date)
             # 将factorList按照依赖关系进行排序, 这里会把一个class内部的因子排在一起, dependency正确排序
@@ -677,7 +854,7 @@ class FactorCalculator:
 
 
 if __name__ == "__main__":
-    from func import classFunc,shioMidFunc,shioCalFunc,varCalFunc,coinCalFunc
+    from func import classFunc,shioMidFunc,shioCalFunc,varCalFunc,coinCalFunc,umrCalFunc
     with open(r".\config\factor.json5", "r",encoding='utf-8') as f:
         factor_cfg = json5.load(f)
     with open(r".\config\indicator.json5","r",encoding='utf-8') as f:
@@ -691,9 +868,9 @@ if __name__ == "__main__":
     F = FactorCalculator(session=session, config=config,
                          factor_cfg=factor_cfg,
                          indicator_cfg=indicator_cfg,
-                         func_map=get_funcMapFromImport(classFunc,
-                                                        shioMidFunc,
-                                                        shioCalFunc,varCalFunc,coinCalFunc),
+                         func_map=get_funcMapFromImport(
+                             classFunc,shioMidFunc,
+                             shioCalFunc,varCalFunc,coinCalFunc,umrCalFunc),
                          class_cfg=class_cfg)
     # F.init_database(True,True,True,True)
     F.set_factorList(factor_list=list(factor_cfg.keys()))

@@ -91,150 +91,198 @@
 //        "params": {"freq": "minute", "callBackPeriod": 120}
 //    },
 
-    "interDayReturn": {
+//    "interDayReturn": {
+//        "class": "stock",
+//        "calFunc": "get_interDayReturn",
+//        "dependency": {"factor": null, "midFunc": null},
+//        "dataPath": ["stockDayKBar"],
+//        "indicator": [["open","close"]],
+//        "params": {"freq": "day", "callBackPeriod": 2}
+//    },
+//    "interDayReturn_avg20": {
+//        "class": "stock",
+//        "calFunc": "get_interDayReturn_avg20",
+//        "dependency": {"factor": ["interDayReturn"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//    "interDayReturn_std20": {
+//        "class": "stock",
+//        "calFunc": "get_interDayReturn_std20",
+//        "dependency": {"factor": ["interDayReturn"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//    "interDayReturnReverse": {
+//        "class": "stock",
+//        "calFunc": "get_interDayReturnReverse",
+//        "dependency": {"factor": ["interDayReturn_avg20","interDayReturn_std20"], midFunc: null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day", "callBackPeriod": 2},
+//    },
+//    "interDayReturnReverse_avg20": {
+//        "class": "stock",
+//        "calFunc": "get_interDayReturnReverse_avg20",
+//        "dependency": {"factor": ["interDayReturnReverse"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//    "interDayReturnReverse_std20": {
+//        "class": "stock",
+//        "calFunc": "get_interDayReturnReverse_std20",
+//        "dependency": {"factor": ["interDayReturnReverse"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//
+//    "intraDayReturn": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayReturn",
+//        "dependency": {"factor": null, "midFunc": null},
+//        "dataPath": ["stockDayKBar"],
+//        "indicator": [["open","close"]],
+//        "params": {"freq": "day", "callBackPeriod": 2}
+//    },
+//    "intraDayReturn_avg20": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayReturn_avg20",
+//        "dependency": {"factor": ["intraDayReturn"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//    "intraDayReturn_std20": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayReturn_std20",
+//        "dependency": {"factor": ["intraDayReturn"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//    "intraDayReturnReverse": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayReturnReverse",
+//        "dependency": {"factor": ["intraDayReturn_avg20","intraDayReturn_std20"], midFunc: null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day", "callBackPeriod": 2},
+//    },
+//    "intraDayReturnReverse_avg20": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayReturnReverse_avg20",
+//        "dependency": {"factor": ["intraDayReturnReverse"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//    "intraDayReturnReverse_std20": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayReturnReverse_std20",
+//        "dependency": {"factor": ["intraDayReturnReverse"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//
+//    "intraDayTurnoverRateDiff": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayTurnoverRateDiff",
+//        "dependency": {"factor": null, "midFunc": null},
+//        "dataPath": ["stockDayKBar","stockBasic"],
+//        "indicator": [["open","close"],["stockBasic_turnoverRate"]],
+//        "params": {"freq": "day", "callBackPeriod": 2}
+//    },
+//    "intraDayTurnoverRateDiff_avg20": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayTurnoverRateDiff_avg20",
+//        "dependency": {"factor": ["intraDayTurnoverRateDiff"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//    "intraDayTurnoverRateDiff_std20": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayReturn_std20",
+//        "dependency": {"factor": ["intraDayTurnoverRateDiff"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//    "intraDayTurnoverRateDiffReverse": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayReturnReverse",
+//        "dependency": {"factor": ["intraDayTurnoverRateDiff_avg20","intraDayTurnoverRateDiff_std20"], midFunc: null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day", "callBackPeriod": 2},
+//    },
+//    "intraDayTurnoverRateDiffReverse_avg20": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayTurnoverRateDiffReverse_avg20",
+//        "dependency": {"factor": ["intraDayTurnoverRateDiffReverse"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    },
+//    "intraDayTurnoverRateDiffReverse_std20": {
+//        "class": "stock",
+//        "calFunc": "get_intraDayTurnoverRateDiffReverse_std20",
+//        "dependency": {"factor": ["intraDayTurnoverRateDiffReverse"], "midFunc": null},
+//        "dataPath": [],
+//        "indicator": [],
+//        "params": {"freq": "day","callBackPeriod": 20}
+//    }
+    "dayOverBenchRet": {
         "class": "stock",
-        "calFunc": "get_interDayReturn",
+        "calFunc": "get_dayOverBenchRet",
+        "dependency": {"factor": null, "midFunc": null},
+        "dataPath": ["stockDayKBar","stockDayIndex"],
+        "indicator": [["open","close"],["pctChg"]],
+        "params": {"freq": "day","callBackPeriod": 2}
+    },
+    "riskTR10": {
+        "class": "stock",
+        "calFunc": "get_riskTR",
         "dependency": {"factor": null, "midFunc": null},
         "dataPath": ["stockDayKBar"],
-        "indicator": [["open","close"]],
-        "params": {"freq": "day", "callBackPeriod": 2}
+        "indicator": [["open","high","low","close"]],
+        "params": {"freq": "day","callBackPeriod": 2}
     },
-    "interDayReturn_avg20": {
+    "adjRiskTR10": {
         "class": "stock",
-        "calFunc": "get_interDayReturn_avg20",
-        "dependency": {"factor": ["interDayReturn"], "midFunc": null},
+        "calFunc": "get_adjRiskTR10",
+        "dependency": {"factor": ["riskTR10"], "midFunc": null},
         "dataPath": [],
         "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
+        "params": {"freq": "day","callBackPeriod": 10}
     },
-    "interDayReturn_std20": {
+    "riskTurnoverRate": {
         "class": "stock",
-        "calFunc": "get_interDayReturn_std20",
-        "dependency": {"factor": ["interDayReturn"], "midFunc": null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
-    },
-    "interDayReturnReverse": {
-        "class": "stock",
-        "calFunc": "get_interDayReturnReverse",
-        "dependency": {"factor": ["interDayReturn_avg20","interDayReturn_std20"], midFunc: null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day", "callBackPeriod": 2},
-    },
-    "interDayReturnReverse_avg20": {
-        "class": "stock",
-        "calFunc": "get_interDayReturnReverse_avg20",
-        "dependency": {"factor": ["interDayReturnReverse"], "midFunc": null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
-    },
-    "interDayReturnReverse_std20": {
-        "class": "stock",
-        "calFunc": "get_interDayReturnReverse_std20",
-        "dependency": {"factor": ["interDayReturnReverse"], "midFunc": null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
-    },
-
-    "intraDayReturn": {
-        "class": "stock",
-        "calFunc": "get_intraDayReturn",
+        "calFunc": "get_riskTurnoverRate",
         "dependency": {"factor": null, "midFunc": null},
-        "dataPath": ["stockDayKBar"],
-        "indicator": [["open","close"]],
-        "params": {"freq": "day", "callBackPeriod": 2}
+        "dataPath": ["stockBasic"],
+        "indicator": [["turnoverRate"]],
+        "params": {"freq": "day","callBackPeriod": 1}
     },
-    "intraDayReturn_avg20": {
+    "umrTR10": {
         "class": "stock",
-        "calFunc": "get_intraDayReturn_avg20",
-        "dependency": {"factor": ["intraDayReturn"], "midFunc": null},
+        "calFunc": "get_umrTR10",
+        "dependency": {"factor": ["dayOverBenchRet","adjRiskTR10"], "midFunc": null},
         "dataPath": [],
         "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
+        "params": {"freq": "day","callBackPeriod": 10}
     },
-    "intraDayReturn_std20": {
+    "umrTurnoverRate10": {
         "class": "stock",
-        "calFunc": "get_intraDayReturn_std20",
-        "dependency": {"factor": ["intraDayReturn"], "midFunc": null},
+        "calFunc": "get_umrTurnoverRate10",
+        "dependency": {"factor": ["dayOverBenchRet","riskTurnoverRate"], "midFunc": null},
         "dataPath": [],
         "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
-    },
-    "intraDayReturnReverse": {
-        "class": "stock",
-        "calFunc": "get_intraDayReturnReverse",
-        "dependency": {"factor": ["intraDayReturn_avg20","intraDayReturn_std20"], midFunc: null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day", "callBackPeriod": 2},
-    },
-    "intraDayReturnReverse_avg20": {
-        "class": "stock",
-        "calFunc": "get_intraDayReturnReverse_avg20",
-        "dependency": {"factor": ["intraDayReturnReverse"], "midFunc": null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
-    },
-    "intraDayReturnReverse_std20": {
-        "class": "stock",
-        "calFunc": "get_intraDayReturnReverse_std20",
-        "dependency": {"factor": ["intraDayReturnReverse"], "midFunc": null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
-    },
-
-    "intraDayTurnoverRateDiff": {
-        "class": "stock",
-        "calFunc": "get_intraDayTurnoverRateDiff",
-        "dependency": {"factor": null, "midFunc": null},
-        "dataPath": ["stockDayKBar","stockBasic"],
-        "indicator": [["open","close"],["stockBasic_turnoverRate"]],
-        "params": {"freq": "day", "callBackPeriod": 2}
-    },
-    "intraDayTurnoverRateDiff_avg20": {
-        "class": "stock",
-        "calFunc": "get_intraDayTurnoverRateDiff_avg20",
-        "dependency": {"factor": ["intraDayTurnoverRateDiff"], "midFunc": null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
-    },
-    "intraDayTurnoverRateDiff_std20": {
-        "class": "stock",
-        "calFunc": "get_intraDayReturn_std20",
-        "dependency": {"factor": ["intraDayTurnoverRateDiff"], "midFunc": null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
-    },
-    "intraDayTurnoverRateDiffReverse": {
-        "class": "stock",
-        "calFunc": "get_intraDayReturnReverse",
-        "dependency": {"factor": ["intraDayTurnoverRateDiff_avg20","intraDayTurnoverRateDiff_std20"], midFunc: null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day", "callBackPeriod": 2},
-    },
-    "intraDayTurnoverRateDiffReverse_avg20": {
-        "class": "stock",
-        "calFunc": "get_intraDayTurnoverRateDiffReverse_avg20",
-        "dependency": {"factor": ["intraDayTurnoverRateDiffReverse"], "midFunc": null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
-    },
-    "intraDayTurnoverRateDiffReverse_std20": {
-        "class": "stock",
-        "calFunc": "get_intraDayTurnoverRateDiffReverse_std20",
-        "dependency": {"factor": ["intraDayTurnoverRateDiffReverse"], "midFunc": null},
-        "dataPath": [],
-        "indicator": [],
-        "params": {"freq": "day","callBackPeriod": 20}
+        "params": {"freq": "day","callBackPeriod": 2}
     }
 }

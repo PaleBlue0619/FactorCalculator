@@ -30,3 +30,15 @@ def reverse(self: FactorCalculator, factorName: str, dependFactor: list):
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
+
+def umr(self: FactorCalculator, factorName: str, dependFactor: list, k:int):
+    returnFactor, riskFactor = dependFactor[0], dependFactor[1]
+    return f"""
+    {self.middleObj} = lj({self.factorDict}["{returnFactor}"].copy(), {self.factorDict}["{riskFactor}"].copy(), `{self.symbolCol}`{self.dateCol});
+    {self.dataObj} =  select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,
+                        msum({riskFactor}*({returnFactor}), 10) as {factorName} 
+                        from {self.middleObj}
+                        context by {self.symbolCol}
+        {self.factorDict}["{factorName}"] = {self.dataObj}
+        print("因子{factorName}计算完毕");    
+        """

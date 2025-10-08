@@ -28,3 +28,4 @@ def vaRDataPrepare(self: FactorCalculator) -> Dict:
     update {self.sourceObj} set ret240 = nullFill(({closeCol}-move({closeCol},240))/{closeCol},0.0) context by {self.symbolCol};
     update {self.sourceObj} set ret240 = clip(ret240,-0.99,0.99);
     """}
+

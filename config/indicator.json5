@@ -15,6 +15,23 @@
         "stockDayKBar_amount": "amount"
       }
     },
+  "stockDayIndex": {
+      "dataPath": ["dfs://DayKDBOfIndex","DayFreq500Idx"],
+      "dataFreq": "day",
+      "dateCol": "TradeDate",
+      "timeCol": null,
+      "symbolCol": null,
+      "indicator": {
+        "stockDayIndex_open": "open",
+        "stockDayIndex_high": "high",
+        "stockDayIndex_low": "low",
+        "stockDayIndex_close": "close",
+        "stockDayIndex_pctChg": "pct_chg",
+        "stockDayIndex_preClose": "pre_close",
+        "stockDayIndex_volume": "volume",
+        "stockDayIndex_amount": "amount"
+      }
+  },
    "stockMin1KBar":{
      "dataPath": ["dfs://MinKDBOfIndex","MinFreq500"],
      "dataFreq": "minute", // 分钟频
