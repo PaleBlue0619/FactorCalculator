@@ -13,6 +13,8 @@ def get_interDayReturn(self: FactorCalculator, factorName: str, feature: Dict, *
     {self.dataObj} =  select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,
                              nullFill(({openCol}-prev({closeCol}))\prev({closeCol}),0.0) as {factorName} from {self.sourceObj} 
                              context by {self.symbolCol}; 
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -25,6 +27,8 @@ def get_intraDayReturn(self: FactorCalculator, factorName: str, feature: Dict, *
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,
                     nullFill((prev({closeCol})-prev({openCol}))\prev({closeCol}),0.0) as {factorName} from {self.sourceObj}
                     context by {self.symbolCol};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj}; 
     print("因子{factorName}计算完毕");
     """
@@ -36,6 +40,8 @@ def get_intraDayTurnoverRateDiff(self: FactorCalculator, factorName: str, featur
                      nullFill({turnoverRateCol}-prev({turnoverRateCol}),0.0) as {factorName}
                      from {self.sourceObj}
                     context by {self.symbolCol};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj}; 
     print("因子{factorName}计算完毕");
     """

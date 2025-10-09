@@ -10,10 +10,10 @@ def shioDataPrepare(self: FactorCalculator) -> Dict:
     volumeCol = "stockMin1KBar_volume"
     amountCol = "stockMin1KBar_amount"
 
-    return {"cmd": f"""
-    update {self.sourceObj} set vwap = nullFill!({amountCol}/{volumeCol},0);
-    update {self.sourceObj} set mVol = msum({volumeCol},9) context by {self.symbolCol}, {self.dateCol}
-    update {self.sourceObj} set mVol = move(mVol,4) context by {self.symbolCol}, {self.dateCol}
+    return {"cmd": rf"""
+    update {self.sourceObj} set vwap = nullFill!({amountCol}\{volumeCol},0.0);
+    update {self.sourceObj} set mVol = msum({volumeCol},9) context by {self.symbolCol}, {self.dateCol};
+    update {self.sourceObj} set mVol = move(mVol,4) context by {self.symbolCol}, {self.dateCol};
     """, "columns": ["vwap","mVol"], "vars":None}
 
 def vaRDataPrepare(self: FactorCalculator) -> Dict:

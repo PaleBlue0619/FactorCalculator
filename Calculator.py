@@ -874,6 +874,6 @@ if __name__ == "__main__":
                          class_cfg=class_cfg)
     # F.init_database(True,True,True,True)
     F.set_factorList(factor_list=list(factor_cfg.keys()))
-    F.run(start_date="20200101",end_date="20250930")
+    F.run(start_date="20170101",end_date="20250930")
     print(F.dolphindb_cmd)
 

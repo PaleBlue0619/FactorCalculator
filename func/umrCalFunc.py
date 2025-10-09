@@ -13,9 +13,9 @@ def get_dayOverBenchRet(self: FactorCalculator, factorName: str, feature: Dict, 
     """日内收益率"""
     return rf"""
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor, 
-                    nullFill(({closeCol}-{openCol})\{openCol}-{idxPctChgCol},0.0) as {factorName}
+                    nullFill(({closeCol}-{openCol})\{openCol}-({idxPctChgCol}\100.0),0.0) as {factorName}
                     from {self.sourceObj}
-                    context by {self.symbolCol}
+                    context by {self.symbolCol};
     {self.factorDict}["{factorName}"] = {self.dataObj}; 
     print("因子{factorName}计算完毕");
     """
@@ -43,6 +43,8 @@ def get_riskTurnoverRate(self: FactorCalculator, factorName: str, feature:Dict, 
     return f"""
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,
         {turnoverRateCol} as {factorName} from {self.sourceObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj};
     print("因子{factorName}计算完毕");
     """

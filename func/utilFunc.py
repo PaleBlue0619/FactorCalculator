@@ -7,6 +7,8 @@ def mstd(self: FactorCalculator, factorName: str, dependFactor: str, k: int):
     {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mstd({dependFactor},{k}) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -16,6 +18,8 @@ def mavg(self: FactorCalculator, factorName: str, dependFactor: str, k: int):
     {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mavg({dependFactor},{k}) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -27,6 +31,8 @@ def reverse(self: FactorCalculator, factorName: str, dependFactor: list):
     update {self.middleObj} set {factorName} = 0.0;
     update {self.middleObj} set {factorName} = -1.0 * {dependFactor0} where {dependFactor1}<avg({dependFactor1}) context by {self.dateCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -39,6 +45,8 @@ def umr(self: FactorCalculator, factorName: str, dependFactor: list, k:int):
                         msum({riskFactor}*({returnFactor}), 10) as {factorName} 
                         from {self.middleObj}
                         context by {self.symbolCol}
-        {self.factorDict}["{factorName}"] = {self.dataObj}
-        print("因子{factorName}计算完毕");    
-        """
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
+    {self.factorDict}["{factorName}"] = {self.dataObj}
+    print("因子{factorName}计算完毕");    
+    """

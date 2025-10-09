@@ -11,6 +11,8 @@ def get_shio(self: FactorCalculator, factorName: str, feature: Dict, **args):
                         group by {self.dateCol}, {self.symbolCol} order by {self.dateCol};
     // dateCol,symbolCol,factorName
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -21,6 +23,8 @@ def get_shio_avg20(self: FactorCalculator, factorName: str, feature: Dict, **arg
     {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mavg({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -31,6 +35,8 @@ def get_shio_std20(self: FactorCalculator, factorName: str, feature: Dict, **arg
     {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mstd({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -42,6 +48,8 @@ def get_shioStrong(self: FactorCalculator, factorName: str, **args):
                         group by {self.dateCol}, {self.symbolCol} order by {self.dateCol};
     // dateCol,symbolCol,factorName
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -52,6 +60,8 @@ def get_shioStrong_avg20(self: FactorCalculator, factorName: str, feature: Dict,
     {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mavg({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -62,6 +72,8 @@ def get_shioStrong_std20(self: FactorCalculator, factorName: str, feature: Dict,
     {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mstd({dependFactor},20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj};  // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -73,6 +85,8 @@ def get_shioWeak(self: FactorCalculator, factorName: str, feature: Dict, **args)
                         group by {self.dateCol}, {self.symbolCol} order by {self.dateCol};
     // dateCol,symbolCol,factorName
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
     print("因子{factorName}计算完毕");
     """
@@ -83,6 +97,8 @@ def get_shioWeak_avg20(self: FactorCalculator, factorName: str, feature: Dict, *
     {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mavg({dependFactor}, 20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
     print("因子{factorName}计算完毕")
     """
@@ -93,6 +109,8 @@ def get_shioWeak_std20(self: FactorCalculator, factorName: str, feature: Dict, *
     {self.middleObj} = {self.factorDict}["{dependFactor}"].copy();
     update {self.middleObj} set {factorName} = mstd({dependFactor}, 20) context by {self.symbolCol};
     {self.dataObj} = select {self.symbolCol},{self.dateCol},"{factorName}" as `factor,{factorName} from {self.middleObj};
+    // 截面空缺值填充
+    update {self.dataObj} set {factorName} = nullFill({factorName},avg({factorName})) context by {self.dateCol};
     {self.factorDict}["{factorName}"] = {self.dataObj}; // 丢进因子数据变量
     print("因子{factorName}计算完毕")
     """
